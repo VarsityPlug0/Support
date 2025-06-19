@@ -2764,3 +2764,8 @@ Please review this report and take appropriate action in the {admin_area_display
             title=f"📋 New User Confirmed Issue - {admin_area_display} - Action Required",
             message=notification_message
         )
+
+def health_check(request):
+    """Health check endpoint for Render monitoring"""
+    from django.http import JsonResponse
+    return JsonResponse({"status": "healthy"}, status=200)

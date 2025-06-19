@@ -30,4 +30,5 @@ urlpatterns = [
     path('admin-archive/', views.admin_archive, name='admin_archive'),  # Admin archive
     path('admin-reports/', views.admin_reports_view, name='admin_reports'),  # Admin reports management route
     path('admin-report/<int:report_id>/', views.admin_report_detail_view, name='admin_report_detail'),  # Admin report detail route
+    path('health/', views.health_check, name='health_check'),
 ] 
