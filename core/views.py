@@ -975,14 +975,26 @@ Use the SafeChain AI knowledge to provide accurate, helpful responses."""
         }
     except Exception as e:  # Handle any errors
         print(f"OpenAI API Error: {str(e)}")  # Print error for debugging
-        return {
-            'response': "I apologize, but I'm having trouble processing your request right now. Please try again later.",
-            'suggestions': ['Try again', 'Contact support directly'],
-            'update_ticket': False,
-            'intent_category': ticket.intent_category,
-            'priority': ticket.priority,
-            'requires_pop': ticket.requires_pop,
-        }
+        
+        # Check if it's an API key issue
+        if "api_key" in str(e).lower() or "authentication" in str(e).lower():
+            return {
+                'response': "Hello! I'm your SafeChain AI assistant. I'm currently being configured and will be fully operational soon. In the meantime, you can ask me about our investment plans, how to get started, or any general questions about SafeChain AI.",
+                'suggestions': ['How do I start investing?', 'What are the investment plans?', 'How does this work?'],
+                'update_ticket': False,
+                'intent_category': ticket.intent_category,
+                'priority': ticket.priority,
+                'requires_pop': ticket.requires_pop,
+            }
+        else:
+            return {
+                'response': "I apologize, but I'm having trouble processing your request right now. Please try again later.",
+                'suggestions': ['Try again', 'Contact support directly'],
+                'update_ticket': False,
+                'intent_category': ticket.intent_category,
+                'priority': ticket.priority,
+                'requires_pop': ticket.requires_pop,
+            }
 
 def format_file_size(bytes):
     """Format file size in human readable format"""
