@@ -26,9 +26,15 @@ def simple_health_check(request):
     response["Content-Type"] = "text/plain"
     return response
 
+def simple_root_page(request):
+    """Simple root page that redirects to the main app"""
+    from django.shortcuts import redirect
+    return redirect('/chat/')
+
 urlpatterns = [
     path('health/', simple_health_check, name='health_check'),  # Health check at root level
     path('admin/', admin.site.urls),  # Django admin interface
+    path('', simple_root_page, name='root'),  # Simple root page
     path('', include('core.urls')),   # Include core app URLs
 ]
 

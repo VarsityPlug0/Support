@@ -18,11 +18,19 @@ django_app = get_wsgi_application()
 
 def health_check_app(environ, start_response):
     """Simple health check that bypasses Django entirely"""
-    if environ.get('PATH_INFO') == '/health/':
+    path_info = environ.get('PATH_INFO', '')
+    
+    if path_info == '/health/':
         status = '200 OK'
         response_headers = [('Content-Type', 'text/plain')]
         start_response(status, response_headers)
         return [b'OK']
+    elif path_info == '/':
+        # Redirect root to chat page
+        status = '302 Found'
+        response_headers = [('Location', '/chat/'), ('Content-Type', 'text/html')]
+        start_response(status, response_headers)
+        return [b'<html><head><title>Redirecting...</title></head><body><p>Redirecting to <a href="/chat/">chat</a>...</p></body></html>']
     else:
         return django_app(environ, start_response)
 
