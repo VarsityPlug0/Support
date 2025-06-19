@@ -1,0 +1,199 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Dashboard - Safe Chain Assistant{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row">  <!-- Main content row -->
+    <!-- Welcome Section -->
+    <div class="col-12 mb-4">  <!-- Full width welcome section -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <h2 class="card-title">Welcome back, {{ user.first_name|default:user.email }}! 👋</h2>  <!-- Welcome message -->
+                <p class="text-muted mb-0">Here's what's happening with your support requests.</p>  <!-- Subtitle -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="col-md-3 mb-4">  <!-- Statistics column -->
+        <div class="card bg-dark border-secondary text-center">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <div class="display-6 text-primary mb-2">🎫</div>  <!-- Ticket icon -->
+                <h3 class="card-title">{{ total_tickets }}</h3>  <!-- Total tickets count -->
+                <p class="card-text text-muted">Total Tickets</p>  <!-- Label -->
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">  <!-- Statistics column -->
+        <div class="card bg-dark border-secondary text-center">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <div class="display-6 text-warning mb-2">⏳</div>  <!-- Pending icon -->
+                <h3 class="card-title">{{ pending_tickets }}</h3>  <!-- Pending tickets count -->
+                <p class="card-text text-muted">Pending</p>  <!-- Label -->
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">  <!-- Statistics column -->
+        <div class="card bg-dark border-secondary text-center">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <div class="display-6 text-success mb-2">✅</div>  <!-- Success icon -->
+                <h3 class="card-title">{{ resolved_tickets }}</h3>  <!-- Resolved tickets count -->
+                <p class="card-text text-muted">Resolved</p>  <!-- Label -->
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">  <!-- Statistics column -->
+        <div class="card bg-dark border-secondary text-center">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <div class="display-6 text-info mb-2">📁</div>  <!-- File icon -->
+                <h3 class="card-title">{{ pending_pops.count }}</h3>  <!-- Pending POPs count -->
+                <p class="card-text text-muted">Pending POPs</p>  <!-- Label -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-md-6 mb-4">  <!-- Quick actions column -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h5 class="card-title mb-0">Quick Actions</h5>  <!-- Section title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                <div class="d-grid gap-2">  <!-- Button group -->
+                    <a href="{% url 'chat' %}" class="btn btn-primary">  <!-- Chat button -->
+                        <i class="bi bi-chat-dots-fill me-2"></i>Start New Chat
+                    </a>
+                    <a href="{% url 'upload_pop' %}" class="btn btn-outline-light">  <!-- Upload POP button -->
+                        <i class="bi bi-upload me-2"></i>Upload Proof of Payment
+                    </a>
+                    <a href="{% url 'tickets' %}" class="btn btn-outline-light">  <!-- View tickets button -->
+                        <i class="bi bi-ticket-detailed me-2"></i>View All Tickets
+                    </a>
+                    <a href="{% url 'actions' %}" class="btn btn-outline-light">  <!-- View actions button -->
+                        <i class="bi bi-list-check me-2"></i>View My Actions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Actions -->
+    <div class="col-md-6 mb-4">  <!-- Pending actions column -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header d-flex justify-content-between align-items-center">  <!-- Card header with flex -->
+                <h5 class="card-title mb-0">Pending Actions</h5>  <!-- Section title -->
+                <a href="{% url 'actions' %}" class="btn btn-sm btn-outline-light">View All</a>  <!-- View all button -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                {% if pending_actions %}  <!-- If there are pending actions -->
+                    <div class="list-group list-group-flush bg-transparent">  <!-- List group -->
+                        {% for action in pending_actions %}  <!-- Loop through pending actions -->
+                            <div class="list-group-item bg-transparent border-secondary">  <!-- List item -->
+                                <div class="d-flex justify-content-between align-items-center">  <!-- Flex container -->
+                                    <div>  <!-- Action info -->
+                                        <h6 class="mb-1">{{ action.title }}</h6>  <!-- Action title -->
+                                        <small class="text-muted">
+                                            {% if action.due_date %}  <!-- If due date exists -->
+                                                Due: {{ action.due_date|date:"M d, Y" }}  <!-- Due date -->
+                                            {% else %}  <!-- If no due date -->
+                                                No due date  <!-- No due date text -->
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-{% if action.priority == 'urgent' %}danger{% elif action.priority == 'high' %}warning{% elif action.priority == 'medium' %}info{% else %}secondary{% endif %}">  <!-- Priority badge -->
+                                        {{ action.get_priority_display }}  <!-- Priority text -->
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}  <!-- If no pending actions -->
+                    <div class="text-center py-3">  <!-- Centered content -->
+                        <div class="display-6 text-muted mb-2">✅</div>  <!-- Empty state icon -->
+                        <p class="text-muted mb-0">No pending actions</p>  <!-- Empty state message -->
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-md-6 mb-4">  <!-- Recent activity column -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h5 class="card-title mb-0">Recent Activity</h5>  <!-- Section title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                {% if recent_tickets %}  <!-- If there are recent tickets -->
+                    <div class="list-group list-group-flush bg-transparent">  <!-- List group -->
+                        {% for ticket in recent_tickets %}  <!-- Loop through recent tickets -->
+                            <div class="list-group-item bg-transparent border-secondary">  <!-- List item -->
+                                <div class="d-flex justify-content-between align-items-center">  <!-- Flex container -->
+                                    <div>  <!-- Ticket info -->
+                                        <h6 class="mb-1">{{ ticket.title }}</h6>  <!-- Ticket title -->
+                                        <small class="text-muted">{{ ticket.created_at|date:"M d, Y" }}</small>  <!-- Creation date -->
+                                    </div>
+                                    <span class="badge bg-{{ ticket.status|yesno:'success,warning,info' }}">{{ ticket.status|title }}</span>  <!-- Status badge -->
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}  <!-- If no recent tickets -->
+                    <p class="text-muted text-center">No recent activity</p>  <!-- No activity message -->
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Tickets -->
+    <div class="col-12">  <!-- Full width section -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header d-flex justify-content-between align-items-center">  <!-- Card header with flex -->
+                <h5 class="card-title mb-0">Recent Tickets</h5>  <!-- Section title -->
+                <a href="{% url 'tickets' %}" class="btn btn-sm btn-outline-light">View All</a>  <!-- View all button -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                {% if recent_tickets %}  <!-- If there are recent tickets -->
+                    <div class="table-responsive">  <!-- Responsive table -->
+                        <table class="table table-dark table-hover">  <!-- Dark table with hover -->
+                            <thead>  <!-- Table header -->
+                                <tr>  <!-- Header row -->
+                                    <th>Title</th>  <!-- Title column -->
+                                    <th>Status</th>  <!-- Status column -->
+                                    <th>Priority</th>  <!-- Priority column -->
+                                    <th>Created</th>  <!-- Created column -->
+                                    <th>Actions</th>  <!-- Actions column -->
+                                </tr>
+                            </thead>
+                            <tbody>  <!-- Table body -->
+                                {% for ticket in recent_tickets %}  <!-- Loop through recent tickets -->
+                                    <tr>  <!-- Table row -->
+                                        <td>{{ ticket.title }}</td>  <!-- Ticket title -->
+                                        <td>  <!-- Status cell -->
+                                            <span class="badge bg-{{ ticket.status|yesno:'success,warning,info' }}">{{ ticket.status|title }}</span>  <!-- Status badge -->
+                                        </td>
+                                        <td>  <!-- Priority cell -->
+                                            <span class="badge bg-{{ ticket.priority|yesno:'danger,warning,info,secondary' }}">{{ ticket.priority|title }}</span>  <!-- Priority badge -->
+                                        </td>
+                                        <td>{{ ticket.created_at|date:"M d, Y" }}</td>  <!-- Creation date -->
+                                        <td>  <!-- Actions cell -->
+                                            <a href="{% url 'chat' %}?ticket={{ ticket.id }}" class="btn btn-sm btn-outline-primary">View</a>  <!-- View button -->
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}  <!-- If no recent tickets -->
+                    <div class="text-center py-4">  <!-- Centered content -->
+                        <div class="display-4 text-muted mb-3">🎫</div>  <!-- Empty state icon -->
+                        <h5>No tickets yet</h5>  <!-- Empty state title -->
+                        <p class="text-muted">Start a chat to create your first support ticket</p>  <!-- Empty state message -->
+                        <a href="{% url 'chat' %}" class="btn btn-primary">Start Chat</a>  <!-- CTA button -->
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

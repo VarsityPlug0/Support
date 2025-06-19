@@ -1,0 +1,97 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Profile - Safe Chain Assistant{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row justify-content-center">  <!-- Center the content -->
+    <div class="col-md-8 col-lg-6">  <!-- Responsive column sizing -->
+        <div class="card bg-dark border-primary">  <!-- Dark card with primary border -->
+            <div class="card-header bg-primary text-white">  <!-- Primary header -->
+                <h4 class="mb-0"><i class="bi bi-person-circle me-2"></i>Profile Settings</h4>  <!-- Header with icon -->
+            </div>
+            <div class="card-body">  <!-- Card body -->
+                <form method="post">  <!-- Profile update form -->
+                    {% csrf_token %}  <!-- CSRF protection -->
+                    
+                    <!-- Personal Information Section -->
+                    <h5 class="text-primary mb-3"><i class="bi bi-person me-2"></i>Personal Information</h5>  <!-- Section header -->
+                    
+                    <div class="row mb-3">  <!-- First and Last Name row -->
+                        <div class="col-md-6">  <!-- First name column -->
+                            <label for="first_name" class="form-label">First Name</label>  <!-- First name label -->
+                            <input type="text" class="form-control bg-dark text-white border-secondary" id="first_name" name="first_name" value="{{ user.first_name }}" required>  <!-- First name input -->
+                        </div>
+                        <div class="col-md-6">  <!-- Last name column -->
+                            <label for="last_name" class="form-label">Last Name</label>  <!-- Last name label -->
+                            <input type="text" class="form-control bg-dark text-white border-secondary" id="last_name" name="last_name" value="{{ user.last_name }}">  <!-- Last name input -->
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">  <!-- Email field -->
+                        <label for="email" class="form-label">Email Address</label>  <!-- Email label -->
+                        <input type="email" class="form-control bg-dark text-white border-secondary" id="email" value="{{ user.email }}" readonly>  <!-- Email input (readonly) -->
+                        <div class="form-text text-muted">Email cannot be changed</div>  <!-- Help text -->
+                    </div>
+                    
+                    <div class="mb-3">  <!-- Phone field -->
+                        <label for="phone" class="form-label">Phone Number</label>  <!-- Phone label -->
+                        <input type="tel" class="form-control bg-dark text-white border-secondary" id="phone" name="phone" value="{{ user.phone }}">  <!-- Phone input -->
+                    </div>
+                    
+                    <!-- Password Change Section -->
+                    <hr class="my-4">  <!-- Divider -->
+                    <h5 class="text-primary mb-3"><i class="bi bi-shield-lock me-2"></i>Change Password</h5>  <!-- Section header -->
+                    <div class="alert alert-info">  <!-- Info alert -->
+                        <i class="bi bi-info-circle me-2"></i>Leave password fields empty if you don't want to change your password.
+                    </div>
+                    
+                    <div class="mb-3">  <!-- Current password field -->
+                        <label for="current_password" class="form-label">Current Password</label>  <!-- Current password label -->
+                        <input type="password" class="form-control bg-dark text-white border-secondary" id="current_password" name="current_password">  <!-- Current password input -->
+                    </div>
+                    
+                    <div class="row mb-3">  <!-- New password row -->
+                        <div class="col-md-6">  <!-- New password column -->
+                            <label for="new_password" class="form-label">New Password</label>  <!-- New password label -->
+                            <input type="password" class="form-control bg-dark text-white border-secondary" id="new_password" name="new_password">  <!-- New password input -->
+                        </div>
+                        <div class="col-md-6">  <!-- Confirm password column -->
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>  <!-- Confirm password label -->
+                            <input type="password" class="form-control bg-dark text-white border-secondary" id="confirm_password" name="confirm_password">  <!-- Confirm password input -->
+                        </div>
+                    </div>
+                    
+                    <!-- Account Information Section -->
+                    <hr class="my-4">  <!-- Divider -->
+                    <h5 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Account Information</h5>  <!-- Section header -->
+                    
+                    <div class="row mb-3">  <!-- Account details row -->
+                        <div class="col-md-6">  <!-- Member since column -->
+                            <label class="form-label">Member Since</label>  <!-- Member since label -->
+                            <input type="text" class="form-control bg-dark text-white border-secondary" value="{{ user.date_joined|date:'M d, Y' }}" readonly>  <!-- Member since input (readonly) -->
+                        </div>
+                        <div class="col-md-6">  <!-- Last login column -->
+                            <label class="form-label">Last Login</label>  <!-- Last login label -->
+                            <input type="text" class="form-control bg-dark text-white border-secondary" value="{{ user.last_login|date:'M d, Y H:i'|default:'Never' }}" readonly>  <!-- Last login input (readonly) -->
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">  <!-- Full-width button container -->
+                        <button type="submit" class="btn btn-primary btn-lg">  <!-- Submit button -->
+                            <i class="bi bi-check-circle me-2"></i>Update Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Back to Dashboard Link -->
+        <div class="text-center mt-3">  <!-- Center the link -->
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">  <!-- Back link -->
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

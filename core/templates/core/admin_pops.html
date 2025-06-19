@@ -1,0 +1,176 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Manage POPs - Safe Chain Assistant{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row">  <!-- Main content row -->
+    <div class="col-12">  <!-- Full width column -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h5 class="card-title mb-0">Proof of Payment Management</h5>  <!-- Page title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                {% if pops %}  <!-- If there are POPs -->
+                    <div class="table-responsive">  <!-- Responsive table -->
+                        <table class="table table-dark table-hover">  <!-- Dark table with hover -->
+                            <thead>  <!-- Table header -->
+                                <tr>  <!-- Header row -->
+                                    <th>User</th>  <!-- User column -->
+                                    <th>File</th>  <!-- File column -->
+                                    <th>Email</th>  <!-- Email column -->
+                                    <th>Reference</th>  <!-- Reference column -->
+                                    <th>Status</th>  <!-- Status column -->
+                                    <th>Created</th>  <!-- Created column -->
+                                    <th>Actions</th>  <!-- Actions column -->
+                                </tr>
+                            </thead>
+                            <tbody>  <!-- Table body -->
+                                {% for pop in pops %}  <!-- Loop through POPs -->
+                                    <tr>  <!-- Table row -->
+                                        <td>{{ pop.user.email }}</td>  <!-- User email -->
+                                        <td>  <!-- File cell -->
+                                            <strong>{{ pop.file_name }}</strong>  <!-- File name -->
+                                            <br><small class="text-muted">{{ pop.file_size|filesizeformat }}</small>  <!-- File size -->
+                                        </td>
+                                        <td>{{ pop.email }}</td>  <!-- Email -->
+                                        <td>{{ pop.reference_number|default:"-" }}</td>  <!-- Reference number -->
+                                        <td>  <!-- Status cell -->
+                                            <span class="badge bg-{{ pop.status|yesno:'success,warning,danger' }}">{{ pop.status|title }}</span>  <!-- Status badge -->
+                                        </td>
+                                        <td>{{ pop.created_at|date:"M d, Y H:i" }}</td>  <!-- Creation date -->
+                                        <td>  <!-- Actions cell -->
+                                            <div class="btn-group btn-group-sm" role="group">  <!-- Button group -->
+                                                <button type="button" class="btn btn-outline-info" onclick="viewPop({{ pop.id }})">  <!-- View button -->
+                                                    <i class="bi bi-eye"></i>  <!-- Eye icon -->
+                                                </button>
+                                                {% if pop.status == 'pending' %}  <!-- If POP is pending -->
+                                                    <button type="button" class="btn btn-outline-success" onclick="approvePop({{ pop.id }})">  <!-- Approve button -->
+                                                        <i class="bi bi-check-circle"></i>  <!-- Check icon -->
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-danger" onclick="rejectPop({{ pop.id }})">  <!-- Reject button -->
+                                                        <i class="bi bi-x-circle"></i>  <!-- X icon -->
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}  <!-- If no POPs -->
+                    <div class="text-center py-5">  <!-- Centered content -->
+                        <div class="display-4 text-muted mb-3">📁</div>  <!-- Empty state icon -->
+                        <h5>No proof of payments</h5>  <!-- Empty state title -->
+                        <p class="text-muted">No proof of payment files have been uploaded yet.</p>  <!-- Empty state message -->
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- POP Details Modal -->
+<div class="modal fade" id="popModal" tabindex="-1" aria-labelledby="popModalLabel" aria-hidden="true">  <!-- Modal -->
+    <div class="modal-dialog modal-lg">  <!-- Large modal -->
+        <div class="modal-content bg-dark">  <!-- Dark modal content -->
+            <div class="modal-header border-secondary">  <!-- Modal header -->
+                <h5 class="modal-title" id="popModalLabel">Proof of Payment Details</h5>  <!-- Modal title -->
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>  <!-- Close button -->
+            </div>
+            <div class="modal-body">  <!-- Modal body -->
+                <div id="popDetails">  <!-- POP details container -->
+                    <!-- POP details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">  <!-- Modal footer -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  <!-- Close button -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Modal -->
+<div class="modal fade" id="actionModal" tabindex="-1" aria-labelledby="actionModalLabel" aria-hidden="true">  <!-- Modal -->
+    <div class="modal-dialog">  <!-- Modal dialog -->
+        <div class="modal-content bg-dark">  <!-- Dark modal content -->
+            <div class="modal-header border-secondary">  <!-- Modal header -->
+                <h5 class="modal-title" id="actionModalLabel">Update POP Status</h5>  <!-- Modal title -->
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>  <!-- Close button -->
+            </div>
+            <form id="actionForm" method="post">  <!-- Action form -->
+                <div class="modal-body">  <!-- Modal body -->
+                    {% csrf_token %}  <!-- CSRF token -->
+                    <input type="hidden" id="popId" name="pop_id">  <!-- Hidden POP ID -->
+                    <input type="hidden" id="actionType" name="action">  <!-- Hidden action type -->
+                    
+                    <div class="mb-3">  <!-- Notes field group -->
+                        <label for="adminNotes" class="form-label">Admin Notes</label>  <!-- Notes label -->
+                        <textarea class="form-control" id="adminNotes" name="admin_notes" rows="3" placeholder="Add any notes about this POP..."></textarea>  <!-- Notes textarea -->
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">  <!-- Modal footer -->
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>  <!-- Cancel button -->
+                    <button type="submit" class="btn btn-primary" id="actionButton">Update</button>  <!-- Submit button -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}  <!-- Additional JavaScript block -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {  // Wait for DOM to load
+    // Handle action form submission
+    document.getElementById('actionForm').addEventListener('submit', function(e) {  // Form submit event
+        e.preventDefault();  // Prevent default form submission
+        
+        const formData = new FormData(this);  // Get form data
+        fetch(window.location.href, {  // Send fetch request
+            method: 'POST',  // POST method
+            body: formData  // Form data
+        })
+        .then(response => {  // Handle response
+            if (response.ok) {  // If successful
+                window.location.reload();  // Reload page
+            }
+        })
+        .catch(error => {  // Handle errors
+            console.error('Error:', error);  // Log error
+            alert('An error occurred while updating the POP.');  // Show error message
+        });
+    });
+});
+
+// Function to view POP details
+function viewPop(popId) {  // View POP function
+    // You can implement this to show POP details in a modal
+    alert('View POP details for ID: ' + popId);  // Placeholder alert
+}
+
+// Function to approve POP
+function approvePop(popId) {  // Approve POP function
+    document.getElementById('popId').value = popId;  // Set POP ID
+    document.getElementById('actionType').value = 'approve';  // Set action type
+    document.getElementById('actionButton').textContent = 'Approve';  // Set button text
+    document.getElementById('actionButton').className = 'btn btn-success';  // Set button class
+    document.getElementById('actionModalLabel').textContent = 'Approve POP';  // Set modal title
+    
+    const modal = new bootstrap.Modal(document.getElementById('actionModal'));  // Create modal
+    modal.show();  // Show modal
+}
+
+// Function to reject POP
+function rejectPop(popId) {  // Reject POP function
+    document.getElementById('popId').value = popId;  // Set POP ID
+    document.getElementById('actionType').value = 'reject';  // Set action type
+    document.getElementById('actionButton').textContent = 'Reject';  // Set button text
+    document.getElementById('actionButton').className = 'btn btn-danger';  // Set button class
+    document.getElementById('actionModalLabel').textContent = 'Reject POP';  // Set modal title
+    
+    const modal = new bootstrap.Modal(document.getElementById('actionModal'));  // Create modal
+    modal.show();  // Show modal
+}
+</script>
+{% endblock %} 

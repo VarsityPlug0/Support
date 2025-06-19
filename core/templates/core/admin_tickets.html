@@ -1,0 +1,169 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Manage Tickets - Safe Chain Assistant{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row">  <!-- Main content row -->
+    <div class="col-12">  <!-- Full width column -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h5 class="card-title mb-0">Support Ticket Management</h5>  <!-- Page title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                {% if tickets %}  <!-- If there are tickets -->
+                    <div class="table-responsive">  <!-- Responsive table -->
+                        <table class="table table-dark table-hover">  <!-- Dark table with hover -->
+                            <thead>  <!-- Table header -->
+                                <tr>  <!-- Header row -->
+                                    <th>User</th>  <!-- User column -->
+                                    <th>Title</th>  <!-- Title column -->
+                                    <th>Status</th>  <!-- Status column -->
+                                    <th>Priority</th>  <!-- Priority column -->
+                                    <th>Assigned To</th>  <!-- Assigned column -->
+                                    <th>Created</th>  <!-- Created column -->
+                                    <th>Actions</th>  <!-- Actions column -->
+                                </tr>
+                            </thead>
+                            <tbody>  <!-- Table body -->
+                                {% for ticket in tickets %}  <!-- Loop through tickets -->
+                                    <tr>  <!-- Table row -->
+                                        <td>{{ ticket.user.email }}</td>  <!-- User email -->
+                                        <td>  <!-- Title cell -->
+                                            <strong>{{ ticket.title }}</strong>  <!-- Ticket title -->
+                                            {% if ticket.description|length > 50 %}  <!-- If description is long -->
+                                                <br><small class="text-muted">{{ ticket.description|truncatechars:50 }}</small>  <!-- Truncated description -->
+                                            {% endif %}
+                                        </td>
+                                        <td>  <!-- Status cell -->
+                                            <span class="badge bg-{{ ticket.status|yesno:'success,warning,info,secondary,danger' }}">{{ ticket.status|title }}</span>  <!-- Status badge -->
+                                        </td>
+                                        <td>  <!-- Priority cell -->
+                                            <span class="badge bg-{{ ticket.priority|yesno:'danger,warning,info,secondary' }}">{{ ticket.priority|title }}</span>  <!-- Priority badge -->
+                                        </td>
+                                        <td>{{ ticket.assigned_to.email|default:"Unassigned" }}</td>  <!-- Assigned admin -->
+                                        <td>{{ ticket.created_at|date:"M d, Y H:i" }}</td>  <!-- Creation date -->
+                                        <td>  <!-- Actions cell -->
+                                            <div class="btn-group btn-group-sm" role="group">  <!-- Button group -->
+                                                <button type="button" class="btn btn-outline-info" onclick="viewTicket({{ ticket.id }})">  <!-- View button -->
+                                                    <i class="bi bi-eye"></i>  <!-- Eye icon -->
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary" onclick="updateTicket({{ ticket.id }})">  <!-- Update button -->
+                                                    <i class="bi bi-pencil"></i>  <!-- Pencil icon -->
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}  <!-- If no tickets -->
+                    <div class="text-center py-5">  <!-- Centered content -->
+                        <div class="display-4 text-muted mb-3">🎫</div>  <!-- Empty state icon -->
+                        <h5>No support tickets</h5>  <!-- Empty state title -->
+                        <p class="text-muted">No support tickets have been created yet.</p>  <!-- Empty state message -->
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ticket Details Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">  <!-- Modal -->
+    <div class="modal-dialog modal-lg">  <!-- Large modal -->
+        <div class="modal-content bg-dark">  <!-- Dark modal content -->
+            <div class="modal-header border-secondary">  <!-- Modal header -->
+                <h5 class="modal-title" id="ticketModalLabel">Ticket Details</h5>  <!-- Modal title -->
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>  <!-- Close button -->
+            </div>
+            <div class="modal-body">  <!-- Modal body -->
+                <div id="ticketDetails">  <!-- Ticket details container -->
+                    <!-- Ticket details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer border-secondary">  <!-- Modal footer -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>  <!-- Close button -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Ticket Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">  <!-- Modal -->
+    <div class="modal-dialog">  <!-- Modal dialog -->
+        <div class="modal-content bg-dark">  <!-- Dark modal content -->
+            <div class="modal-header border-secondary">  <!-- Modal header -->
+                <h5 class="modal-title" id="updateModalLabel">Update Ticket</h5>  <!-- Modal title -->
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>  <!-- Close button -->
+            </div>
+            <form id="updateForm" method="post">  <!-- Update form -->
+                <div class="modal-body">  <!-- Modal body -->
+                    {% csrf_token %}  <!-- CSRF token -->
+                    <input type="hidden" id="ticketId" name="ticket_id">  <!-- Hidden ticket ID -->
+                    
+                    <div class="mb-3">  <!-- Status field group -->
+                        <label for="status" class="form-label">Status</label>  <!-- Status label -->
+                        <select class="form-control" id="status" name="status" required>  <!-- Status select -->
+                            <option value="pending">Pending</option>  <!-- Pending option -->
+                            <option value="in_progress">In Progress</option>  <!-- In Progress option -->
+                            <option value="fixed">Fixed</option>  <!-- Fixed option -->
+                            <option value="confirmed">Confirmed</option>  <!-- Confirmed option -->
+                            <option value="rejected">Rejected</option>  <!-- Rejected option -->
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">  <!-- Notes field group -->
+                        <label for="adminNotes" class="form-label">Admin Notes</label>  <!-- Notes label -->
+                        <textarea class="form-control" id="adminNotes" name="admin_notes" rows="3" placeholder="Add any notes about this ticket..."></textarea>  <!-- Notes textarea -->
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">  <!-- Modal footer -->
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>  <!-- Cancel button -->
+                    <button type="submit" class="btn btn-primary">Update Ticket</button>  <!-- Submit button -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}  <!-- Additional JavaScript block -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {  // Wait for DOM to load
+    // Handle update form submission
+    document.getElementById('updateForm').addEventListener('submit', function(e) {  // Form submit event
+        e.preventDefault();  // Prevent default form submission
+        
+        const formData = new FormData(this);  // Get form data
+        fetch(window.location.href, {  // Send fetch request
+            method: 'POST',  // POST method
+            body: formData  // Form data
+        })
+        .then(response => {  // Handle response
+            if (response.ok) {  // If successful
+                window.location.reload();  // Reload page
+            }
+        })
+        .catch(error => {  // Handle errors
+            console.error('Error:', error);  // Log error
+            alert('An error occurred while updating the ticket.');  // Show error message
+        });
+    });
+});
+
+// Function to view ticket details
+function viewTicket(ticketId) {  // View ticket function
+    // You can implement this to show ticket details in a modal
+    alert('View ticket details for ID: ' + ticketId);  // Placeholder alert
+}
+
+// Function to update ticket
+function updateTicket(ticketId) {  // Update ticket function
+    document.getElementById('ticketId').value = ticketId;  // Set ticket ID
+    
+    const modal = new bootstrap.Modal(document.getElementById('updateModal'));  // Create modal
+    modal.show();  // Show modal
+}
+</script>
+{% endblock %} 

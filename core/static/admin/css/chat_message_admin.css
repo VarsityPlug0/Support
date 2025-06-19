@@ -1,0 +1,460 @@
+/* Custom CSS for ChatMessage Admin Interface */
+
+/* Enhanced table styling */
+#result_list {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+}
+
+#result_list th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: 600;
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#result_list td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: top;
+}
+
+#result_list tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+/* Badge styling */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+    color: white;
+}
+
+.badge.bg-primary {
+    background-color: #007bff !important;
+    color: white;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529;
+}
+
+.badge.bg-info {
+    background-color: #17a2b8 !important;
+    color: white;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+    color: white;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+    color: white;
+}
+
+/* Message preview styling */
+.message-preview {
+    max-width: 300px;
+    word-wrap: break-word;
+    line-height: 1.4;
+    color: #495057;
+    cursor: help;
+}
+
+/* User and ticket info styling */
+.user-info, .ticket-info {
+    line-height: 1.3;
+}
+
+.user-info strong, .ticket-info strong {
+    color: #212529;
+    font-weight: 600;
+}
+
+.user-info small, .ticket-info small {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* Time display styling */
+.time-display {
+    text-align: center;
+    line-height: 1.2;
+}
+
+.time-display strong {
+    color: #212529;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.time-display small {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+/* Button styling for links */
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    color: white;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-outline-info {
+    color: #17a2b8;
+    border-color: #17a2b8;
+    background-color: transparent;
+}
+
+.btn-outline-info:hover {
+    color: white;
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+/* List editable styling */
+.field-is_ai_response {
+    text-align: center;
+}
+
+.field-is_ai_response input[type="checkbox"] {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+/* Filter styling */
+#changelist-filter {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+#changelist-filter h2 {
+    color: #495057;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
+
+#changelist-filter li {
+    margin-bottom: 8px;
+}
+
+#changelist-filter a {
+    color: #007bff;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+#changelist-filter a:hover {
+    background-color: #e9ecef;
+    color: #0056b3;
+}
+
+#changelist-filter a.selected {
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+}
+
+/* Search box styling */
+#searchbar {
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+#searchbar:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Action buttons styling */
+.object-tools {
+    margin-bottom: 20px;
+}
+
+.object-tools a {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: transform 0.2s ease;
+}
+
+.object-tools a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Pagination styling */
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination a {
+    color: #007bff;
+    padding: 8px 12px;
+    text-decoration: none;
+    border: 1px solid #dee2e6;
+    margin: 0 2px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.pagination a:hover {
+    background-color: #e9ecef;
+}
+
+.pagination .this-page {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* Action dropdown styling */
+#changelist-form .actions {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+#changelist-form .actions select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 14px;
+    background-color: white;
+}
+
+#changelist-form .actions button {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#changelist-form .actions button:hover {
+    background: #0056b3;
+}
+
+/* Message length badge styling */
+.field-get_message_length .badge {
+    font-size: 10px;
+    padding: 2px 6px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #result_list {
+        font-size: 12px;
+    }
+    
+    #result_list th,
+    #result_list td {
+        padding: 8px 4px;
+    }
+    
+    .badge {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
+    .message-preview {
+        max-width: 200px;
+    }
+    
+    .btn-sm {
+        padding: 2px 6px;
+        font-size: 10px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    #result_list tr:hover {
+        background-color: #2d3748;
+    }
+    
+    .message-preview {
+        color: #e2e8f0;
+    }
+    
+    .user-info strong, .ticket-info strong {
+        color: #f7fafc;
+    }
+    
+    .user-info small, .ticket-info small {
+        color: #a0aec0;
+    }
+    
+    .time-display strong {
+        color: #f7fafc;
+    }
+    
+    .time-display small {
+        color: #a0aec0;
+    }
+    
+    #changelist-filter {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+    
+    #changelist-filter h2 {
+        color: #e2e8f0;
+    }
+    
+    #changelist-filter a {
+        color: #63b3ed;
+    }
+    
+    #changelist-filter a:hover {
+        background-color: #4a5568;
+        color: #90cdf4;
+    }
+    
+    #changelist-filter a.selected {
+        background-color: #3182ce;
+        color: white;
+    }
+}
+
+/* Additional enhancements for better UX */
+#result_list th:first-child {
+    width: 40px;
+}
+
+#result_list th:nth-child(2) {
+    width: 200px;
+}
+
+#result_list th:nth-child(3) {
+    width: 180px;
+}
+
+#result_list th:nth-child(4) {
+    width: 300px;
+}
+
+#result_list th:nth-child(5) {
+    width: 120px;
+}
+
+#result_list th:nth-child(6) {
+    width: 120px;
+}
+
+#result_list th:nth-child(7) {
+    width: 120px;
+}
+
+/* Hover effects for better interactivity */
+#result_list tr:hover .badge {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+#result_list tr:hover .btn {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Success/error message styling */
+.messagelist {
+    margin-bottom: 20px;
+}
+
+.messagelist li {
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+}
+
+.messagelist li.success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.messagelist li.error {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    color: white;
+}
+
+.messagelist li.warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #212529;
+} 

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Register - Safe Chain Assistant{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row justify-content-center">  <!-- Center the content -->
+    <div class="col-md-6 col-lg-4">  <!-- Responsive column width -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-body p-4">  <!-- Card content with padding -->
+                <div class="text-center mb-4">  <!-- Centered header -->
+                    <h2 class="card-title">Create Account</h2>  <!-- Register title -->
+                    <p class="text-muted">Join Safe Chain Assistant today</p>  <!-- Subtitle -->
+                </div>
+
+                <form method="post">  <!-- Registration form -->
+                    {% csrf_token %}  <!-- CSRF token for security -->
+                    
+                    <div class="mb-3">  <!-- Full name field group -->
+                        <label for="full_name" class="form-label">Full Name</label>  <!-- Full name label -->
+                        <input type="text" class="form-control" id="full_name" name="full_name" required>  <!-- Full name input -->
+                    </div>
+                    
+                    <div class="mb-3">  <!-- Email field group -->
+                        <label for="email" class="form-label">Email Address</label>  <!-- Email label -->
+                        <input type="email" class="form-control" id="email" name="email" required>  <!-- Email input -->
+                    </div>
+                    
+                    <div class="mb-3">  <!-- Phone field group -->
+                        <label for="phone" class="form-label">Phone Number (Optional)</label>  <!-- Phone label -->
+                        <input type="tel" class="form-control" id="phone" name="phone">  <!-- Phone input -->
+                    </div>
+                    
+                    <div class="mb-3">  <!-- Password field group -->
+                        <label for="password" class="form-label">Password</label>  <!-- Password label -->
+                        <input type="password" class="form-control" id="password" name="password" required>  <!-- Password input -->
+                    </div>
+                    
+                    <div class="mb-3">  <!-- Confirm password field group -->
+                        <label for="confirm_password" class="form-label">Confirm Password</label>  <!-- Confirm password label -->
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>  <!-- Confirm password input -->
+                    </div>
+                    
+                    <div class="d-grid">  <!-- Full-width button -->
+                        <button type="submit" class="btn btn-primary">Create Account</button>  <!-- Submit button -->
+                    </div>
+                </form>
+
+                <div class="text-center mt-4">  <!-- Centered footer -->
+                    <p class="text-muted">Already have an account? <a href="{% url 'login' %}" class="text-decoration-none">Sign in here</a></p>  <!-- Login link -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

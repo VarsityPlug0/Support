@@ -1,0 +1,127 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Safe Chain Assistant - Home{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row justify-content-center">  <!-- Center the content -->
+    <div class="col-lg-10">  <!-- Responsive column width -->
+        <!-- Hero Section -->
+        <div class="text-center mb-5">  <!-- Hero section with bottom margin -->
+            <h1 class="display-4 fw-bold mb-3">🛡️ SafeChain AI</h1>  <!-- Main heading with SafeChain icon -->
+            <p class="lead text-muted mb-4">Grow Your Wealth with AI-Powered Crypto Investment Platform</p>  <!-- Subtitle -->
+            <p class="text-muted mb-4">Secure, smart, and automated investing — starting from just R50</p>  <!-- Additional subtitle -->
+            {% if not user.is_authenticated %}  <!-- Show CTA buttons only for guests -->
+                <div class="d-flex justify-content-center gap-3">  <!-- Button group -->
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Get Started</a>  <!-- Register button -->
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Sign In</a>  <!-- Login button -->
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="row mb-5">  <!-- Statistics row -->
+            <div class="col-md-4 text-center mb-3">  <!-- Stat column -->
+                <div class="card bg-dark border-primary h-100">  <!-- Stat card -->
+                    <div class="card-body">  <!-- Card content -->
+                        <h3 class="text-primary mb-2">10,000+</h3>  <!-- Stat number -->
+                        <p class="text-muted mb-0">Investors Joined</p>  <!-- Stat label -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-3">  <!-- Stat column -->
+                <div class="card bg-dark border-success h-100">  <!-- Stat card -->
+                    <div class="card-body">  <!-- Card content -->
+                        <h3 class="text-success mb-2">R5M+</h3>  <!-- Stat number -->
+                        <p class="text-muted mb-0">Total Payouts</p>  <!-- Stat label -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-3">  <!-- Stat column -->
+                <div class="card bg-dark border-info h-100">  <!-- Stat card -->
+                    <div class="card-body">  <!-- Card content -->
+                        <h3 class="text-info mb-2">15</h3>  <!-- Stat number -->
+                        <p class="text-muted mb-0">AI Strategies Running</p>  <!-- Stat label -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Tiers Preview -->
+        <div class="row mb-5">  <!-- Investment tiers row -->
+            <div class="col-12">  <!-- Full width column -->
+                <h2 class="text-center mb-4">Investment Tiers</h2>  <!-- Section title -->
+                <div class="row">  <!-- Tiers grid -->
+                    <div class="col-md-3 col-sm-6 mb-3">  <!-- Tier column -->
+                        <div class="card bg-dark border-warning h-100">  <!-- Tier card -->
+                            <div class="card-body text-center">  <!-- Card content -->
+                                <h5 class="text-warning">Big Jumbo</h5>  <!-- Tier name -->
+                                <p class="text-muted small">1 day • R100 return</p>  <!-- Tier details -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">  <!-- Tier column -->
+                        <div class="card bg-dark border-warning h-100">  <!-- Tier card -->
+                            <div class="card-body text-center">  <!-- Card content -->
+                                <h5 class="text-warning">Silver</h5>  <!-- Tier name -->
+                                <p class="text-muted small">6 days • R800 return</p>  <!-- Tier details -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">  <!-- Tier column -->
+                        <div class="card bg-dark border-warning h-100">  <!-- Tier card -->
+                            <div class="card-body text-center">  <!-- Card content -->
+                                <h5 class="text-warning">Power Ladder</h5>  <!-- Tier name -->
+                                <p class="text-muted small">12 days • R5000 return</p>  <!-- Tier details -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-3">  <!-- Tier column -->
+                        <div class="card bg-dark border-warning h-100">  <!-- Tier card -->
+                            <div class="card-body text-center">  <!-- Card content -->
+                                <h5 class="text-warning">10K Sprint</h5>  <!-- Tier name -->
+                                <p class="text-muted small">14 days • R10000 return</p>  <!-- Tier details -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works Section -->
+        <div class="row mb-5">  <!-- How it works row -->
+            <div class="col-12">  <!-- Full width column -->
+                <h2 class="text-center mb-4">How It Works</h2>  <!-- Section title -->
+                <div class="row">  <!-- Steps grid -->
+                    <div class="col-md-4 text-center mb-3">  <!-- Step column -->
+                        <div class="card bg-dark border-primary h-100">  <!-- Step card -->
+                            <div class="card-body">  <!-- Card content -->
+                                <div class="display-4 mb-3">🤖</div>  <!-- Step icon -->
+                                <h5 class="text-primary">AI-Powered Selection</h5>  <!-- Step title -->
+                                <p class="text-muted">Our AI analyzes market data to select low-risk crypto tokens with high potential.</p>  <!-- Step description -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">  <!-- Step column -->
+                        <div class="card bg-dark border-success h-100">  <!-- Step card -->
+                            <div class="card-body">  <!-- Card content -->
+                                <div class="display-4 mb-3">⚡</div>  <!-- Step icon -->
+                                <h5 class="text-success">Automated Trading</h5>  <!-- Step title -->
+                                <p class="text-muted">Trades are executed automatically and secured with advanced encryption.</p>  <!-- Step description -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">  <!-- Step column -->
+                        <div class="card bg-dark border-info h-100">  <!-- Step card -->
+                            <div class="card-body">  <!-- Card content -->
+                                <div class="display-4 mb-3">💰</div>  <!-- Step icon -->
+                                <h5 class="text-info">Profit Sharing</h5>  <!-- Step title -->
+                                <p class="text-muted">You earn returns based on the profits generated by our AI trading system.</p>  <!-- Step description -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

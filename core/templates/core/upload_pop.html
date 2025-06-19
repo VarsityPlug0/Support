@@ -1,0 +1,119 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Upload Proof of Payment - Safe Chain Assistant{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row justify-content-center">  <!-- Center the content -->
+    <div class="col-lg-8">  <!-- Responsive column width -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h5 class="card-title mb-0">Upload Proof of Payment</h5>  <!-- Page title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                <div class="row">  <!-- Form row -->
+                    <div class="col-md-8">  <!-- Form column -->
+                        <form method="post" enctype="multipart/form-data">  <!-- Upload form with file encoding -->
+                            {% csrf_token %}  <!-- CSRF token -->
+                            
+                            <div class="mb-3">  <!-- Email field group -->
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>  <!-- Email label -->
+                                {{ form.email }}  <!-- Email field -->
+                                {% if form.email.errors %}  <!-- If email has errors -->
+                                    <div class="text-danger small mt-1">  <!-- Error container -->
+                                        {% for error in form.email.errors %}  <!-- Loop through errors -->
+                                            {{ error }}  <!-- Error message -->
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">  <!-- Reference number field group -->
+                                <label for="{{ form.reference_number.id_for_label }}" class="form-label">Reference Number (Optional)</label>  <!-- Reference label -->
+                                {{ form.reference_number }}  <!-- Reference field -->
+                                {% if form.reference_number.errors %}  <!-- If reference has errors -->
+                                    <div class="text-danger small mt-1">  <!-- Error container -->
+                                        {% for error in form.reference_number.errors %}  <!-- Loop through errors -->
+                                            {{ error }}  <!-- Error message -->
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">  <!-- File field group -->
+                                <label for="{{ form.file.id_for_label }}" class="form-label">Proof of Payment File</label>  <!-- File label -->
+                                {{ form.file }}  <!-- File field -->
+                                <div class="form-text text-muted">  <!-- Help text -->
+                                    Accepted formats: JPG, PNG, PDF. Maximum size: 10MB.  <!-- File requirements -->
+                                </div>
+                                {% if form.file.errors %}  <!-- If file has errors -->
+                                    <div class="text-danger small mt-1">  <!-- Error container -->
+                                        {% for error in form.file.errors %}  <!-- Loop through errors -->
+                                            {{ error }}  <!-- Error message -->
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-grid">  <!-- Full-width button -->
+                                <button type="submit" class="btn btn-primary">  <!-- Submit button -->
+                                    <i class="bi bi-upload me-2"></i>Upload Proof of Payment  <!-- Upload icon and text -->
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="col-md-4">  <!-- Info column -->
+                        <div class="card bg-dark border-secondary">  <!-- Info card -->
+                            <div class="card-header">  <!-- Card header -->
+                                <h6 class="card-title mb-0">Upload Guidelines</h6>  <!-- Guidelines title -->
+                            </div>
+                            <div class="card-body">  <!-- Card content -->
+                                <ul class="list-unstyled mb-0">  <!-- Guidelines list -->
+                                    <li class="mb-2">  <!-- Guideline item -->
+                                        <i class="bi bi-check-circle text-success me-2"></i>  <!-- Check icon -->
+                                        Screenshot of payment confirmation  <!-- Guideline text -->
+                                    </li>
+                                    <li class="mb-2">  <!-- Guideline item -->
+                                        <i class="bi bi-check-circle text-success me-2"></i>  <!-- Check icon -->
+                                        Bank transfer receipt  <!-- Guideline text -->
+                                    </li>
+                                    <li class="mb-2">  <!-- Guideline item -->
+                                        <i class="bi bi-check-circle text-success me-2"></i>  <!-- Check icon -->
+                                        Payment gateway confirmation  <!-- Guideline text -->
+                                    </li>
+                                    <li class="mb-2">  <!-- Guideline item -->
+                                        <i class="bi bi-check-circle text-success me-2"></i>  <!-- Check icon -->
+                                        Transaction ID or reference number  <!-- Guideline text -->
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card bg-dark border-secondary mt-3">  <!-- Requirements card -->
+                            <div class="card-header">  <!-- Card header -->
+                                <h6 class="card-title mb-0">File Requirements</h6>  <!-- Requirements title -->
+                            </div>
+                            <div class="card-body">  <!-- Card content -->
+                                <ul class="list-unstyled mb-0">  <!-- Requirements list -->
+                                    <li class="mb-2">  <!-- Requirement item -->
+                                        <i class="bi bi-file-earmark-text text-info me-2"></i>  <!-- File icon -->
+                                        JPG, PNG, or PDF format  <!-- Format requirement -->
+                                    </li>
+                                    <li class="mb-2">  <!-- Requirement item -->
+                                        <i class="bi bi-hdd text-info me-2"></i>  <!-- Storage icon -->
+                                        Maximum 10MB file size  <!-- Size requirement -->
+                                    </li>
+                                    <li class="mb-2">  <!-- Requirement item -->
+                                        <i class="bi bi-eye text-info me-2"></i>  <!-- Eye icon -->
+                                        Clear and readable image  <!-- Quality requirement -->
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

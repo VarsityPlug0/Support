@@ -1,0 +1,258 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+{% load static %}  <!-- Load static files -->
+
+{% block title %}My Actions{% endblock %}  <!-- Set page title -->
+
+{% block content %}  <!-- Start content block -->
+<div class="container mt-4">  <!-- Main container with top margin -->
+    <div class="row">  <!-- Row for layout -->
+        <div class="col-12">  <!-- Full width column -->
+            <div class="d-flex justify-content-between align-items-center mb-4">  <!-- Header with flex layout -->
+                <h1 class="h3 mb-0">My Actions</h1>  <!-- Page title -->
+                <div class="d-flex gap-2">  <!-- Button group -->
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">  <!-- Dashboard link -->
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard  <!-- Back button with icon -->
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">  <!-- Statistics row -->
+                <div class="col-md-3">  <!-- Statistics column -->
+                    <div class="card bg-primary text-white">  <!-- Primary colored card -->
+                        <div class="card-body text-center">  <!-- Centered card body -->
+                            <h5 class="card-title">{{ total_actions }}</h5>  <!-- Total actions count -->
+                            <p class="card-text">Total Actions</p>  <!-- Label -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">  <!-- Statistics column -->
+                    <div class="card bg-warning text-white">  <!-- Warning colored card -->
+                        <div class="card-body text-center">  <!-- Centered card body -->
+                            <h5 class="card-title">{{ pending_count }}</h5>  <!-- Pending actions count -->
+                            <p class="card-text">Pending</p>  <!-- Label -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">  <!-- Statistics column -->
+                    <div class="card bg-info text-white">  <!-- Info colored card -->
+                        <div class="card-body text-center">  <!-- Centered card body -->
+                            <h5 class="card-title">{{ in_progress_count }}</h5>  <!-- In-progress actions count -->
+                            <p class="card-text">In Progress</p>  <!-- Label -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">  <!-- Statistics column -->
+                    <div class="card bg-danger text-white">  <!-- Danger colored card -->
+                        <div class="card-body text-center">  <!-- Centered card body -->
+                            <h5 class="card-title">{{ overdue_actions }}</h5>  <!-- Overdue actions count -->
+                            <p class="card-text">Overdue</p>  <!-- Label -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Actions Section -->
+            {% if pending_actions %}  <!-- If there are pending actions -->
+            <div class="card mb-4">  <!-- Card container -->
+                <div class="card-header bg-warning text-white">  <!-- Warning colored header -->
+                    <h5 class="mb-0">  <!-- Header title -->
+                        <i class="fas fa-clock"></i> Pending Actions ({{ pending_actions.count }})  <!-- Icon and count -->
+                    </h5>
+                </div>
+                <div class="card-body">  <!-- Card body -->
+                    <div class="row">  <!-- Row for action cards -->
+                        {% for action in pending_actions %}  <!-- Loop through pending actions -->
+                        <div class="col-md-6 col-lg-4 mb-3">  <!-- Action card column -->
+                            <div class="card h-100 border-warning">  <!-- Action card with warning border -->
+                                <div class="card-body">  <!-- Card body -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">  <!-- Header with priority -->
+                                        <span class="badge bg-{% if action.priority == 'urgent' %}danger{% elif action.priority == 'high' %}warning{% elif action.priority == 'medium' %}info{% else %}secondary{% endif %}">  <!-- Priority badge -->
+                                            {{ action.get_priority_display }}  <!-- Priority text -->
+                                        </span>
+                                        {% if action.due_date %}  <!-- If due date exists -->
+                                        <small class="text-muted">  <!-- Due date text -->
+                                            Due: {{ action.due_date|date:"M d, Y" }}  <!-- Formatted due date -->
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    <h6 class="card-title">{{ action.title }}</h6>  <!-- Action title -->
+                                    <p class="card-text text-muted">{{ action.description|truncatewords:20 }}</p>  <!-- Truncated description -->
+                                    <div class="d-flex justify-content-between align-items-center">  <!-- Action buttons -->
+                                        <a href="{% url 'action_detail' action.id %}" class="btn btn-sm btn-outline-primary">  <!-- View details link -->
+                                            View Details  <!-- Link text -->
+                                        </a>
+                                        <button class="btn btn-sm btn-success" onclick="updateActionStatus({{ action.id }}, 'in_progress')">  <!-- Start action button -->
+                                            Start  <!-- Button text -->
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}  <!-- End pending actions loop -->
+                    </div>
+                </div>
+            </div>
+            {% endif %}  <!-- End pending actions section -->
+
+            <!-- In Progress Actions Section -->
+            {% if in_progress_actions %}  <!-- If there are in-progress actions -->
+            <div class="card mb-4">  <!-- Card container -->
+                <div class="card-header bg-info text-white">  <!-- Info colored header -->
+                    <h5 class="mb-0">  <!-- Header title -->
+                        <i class="fas fa-tasks"></i> In Progress ({{ in_progress_actions.count }})  <!-- Icon and count -->
+                    </h5>
+                </div>
+                <div class="card-body">  <!-- Card body -->
+                    <div class="row">  <!-- Row for action cards -->
+                        {% for action in in_progress_actions %}  <!-- Loop through in-progress actions -->
+                        <div class="col-md-6 col-lg-4 mb-3">  <!-- Action card column -->
+                            <div class="card h-100 border-info">  <!-- Action card with info border -->
+                                <div class="card-body">  <!-- Card body -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">  <!-- Header with priority -->
+                                        <span class="badge bg-{% if action.priority == 'urgent' %}danger{% elif action.priority == 'high' %}warning{% elif action.priority == 'medium' %}info{% else %}secondary{% endif %}">  <!-- Priority badge -->
+                                            {{ action.get_priority_display }}  <!-- Priority text -->
+                                        </span>
+                                        {% if action.due_date %}  <!-- If due date exists -->
+                                        <small class="text-muted">  <!-- Due date text -->
+                                            Due: {{ action.due_date|date:"M d, Y" }}  <!-- Formatted due date -->
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    <h6 class="card-title">{{ action.title }}</h6>  <!-- Action title -->
+                                    <p class="card-text text-muted">{{ action.description|truncatewords:20 }}</p>  <!-- Truncated description -->
+                                    <div class="d-flex justify-content-between align-items-center">  <!-- Action buttons -->
+                                        <a href="{% url 'action_detail' action.id %}" class="btn btn-sm btn-outline-primary">  <!-- View details link -->
+                                            View Details  <!-- Link text -->
+                                        </a>
+                                        <button class="btn btn-sm btn-success" onclick="updateActionStatus({{ action.id }}, 'completed')">  <!-- Complete action button -->
+                                            Mark Complete  <!-- Button text -->
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}  <!-- End in-progress actions loop -->
+                    </div>
+                </div>
+            </div>
+            {% endif %}  <!-- End in-progress actions section -->
+
+            <!-- Completed Actions Section -->
+            {% if completed_actions %}  <!-- If there are completed actions -->
+            <div class="card mb-4">  <!-- Card container -->
+                <div class="card-header bg-success text-white">  <!-- Success colored header -->
+                    <h5 class="mb-0">  <!-- Header title -->
+                        <i class="fas fa-check-circle"></i> Recently Completed ({{ completed_actions.count }})  <!-- Icon and count -->
+                    </h5>
+                </div>
+                <div class="card-body">  <!-- Card body -->
+                    <div class="row">  <!-- Row for action cards -->
+                        {% for action in completed_actions %}  <!-- Loop through completed actions -->
+                        <div class="col-md-6 col-lg-4 mb-3">  <!-- Action card column -->
+                            <div class="card h-100 border-success">  <!-- Action card with success border -->
+                                <div class="card-body">  <!-- Card body -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">  <!-- Header with completion date -->
+                                        <span class="badge bg-success">Completed</span>  <!-- Completion badge -->
+                                        {% if action.completed_at %}  <!-- If completion date exists -->
+                                        <small class="text-muted">  <!-- Completion date text -->
+                                            {{ action.completed_at|date:"M d, Y" }}  <!-- Formatted completion date -->
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    <h6 class="card-title">{{ action.title }}</h6>  <!-- Action title -->
+                                    <p class="card-text text-muted">{{ action.description|truncatewords:20 }}</p>  <!-- Truncated description -->
+                                    <div class="d-flex justify-content-between align-items-center">  <!-- Action buttons -->
+                                        <a href="{% url 'action_detail' action.id %}" class="btn btn-sm btn-outline-primary">  <!-- View details link -->
+                                            View Details  <!-- Link text -->
+                                        </a>
+                                        {% if action.status == 'completed' %}  <!-- If status is completed -->
+                                        <span class="badge bg-warning">Pending Confirmation</span>  <!-- Pending confirmation badge -->
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}  <!-- End completed actions loop -->
+                    </div>
+                </div>
+            </div>
+            {% endif %}  <!-- End completed actions section -->
+
+            <!-- Confirmed Actions Section -->
+            {% if confirmed_actions %}  <!-- If there are confirmed actions -->
+            <div class="card mb-4">  <!-- Card container -->
+                <div class="card-header bg-secondary text-white">  <!-- Secondary colored header -->
+                    <h5 class="mb-0">  <!-- Header title -->
+                        <i class="fas fa-check-double"></i> Confirmed Actions ({{ confirmed_actions.count }})  <!-- Icon and count -->
+                    </h5>
+                </div>
+                <div class="card-body">  <!-- Card body -->
+                    <div class="row">  <!-- Row for action cards -->
+                        {% for action in confirmed_actions %}  <!-- Loop through confirmed actions -->
+                        <div class="col-md-6 col-lg-4 mb-3">  <!-- Action card column -->
+                            <div class="card h-100 border-secondary">  <!-- Action card with secondary border -->
+                                <div class="card-body">  <!-- Card body -->
+                                    <div class="d-flex justify-content-between align-items-start mb-2">  <!-- Header with confirmation date -->
+                                        <span class="badge bg-secondary">Confirmed</span>  <!-- Confirmation badge -->
+                                        {% if action.updated_at %}  <!-- If update date exists -->
+                                        <small class="text-muted">  <!-- Update date text -->
+                                            {{ action.updated_at|date:"M d, Y" }}  <!-- Formatted update date -->
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    <h6 class="card-title">{{ action.title }}</h6>  <!-- Action title -->
+                                    <p class="card-text text-muted">{{ action.description|truncatewords:20 }}</p>  <!-- Truncated description -->
+                                    <a href="{% url 'action_detail' action.id %}" class="btn btn-sm btn-outline-primary">  <!-- View details link -->
+                                        View Details  <!-- Link text -->
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}  <!-- End confirmed actions loop -->
+                    </div>
+                </div>
+            </div>
+            {% endif %}  <!-- End confirmed actions section -->
+
+            <!-- Empty State -->
+            {% if not pending_actions and not in_progress_actions and not completed_actions and not confirmed_actions %}  <!-- If no actions exist -->
+            <div class="text-center py-5">  <!-- Centered empty state -->
+                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>  <!-- Large icon -->
+                <h4 class="text-muted">No Actions Assigned</h4>  <!-- Empty state title -->
+                <p class="text-muted">You don't have any actions assigned to you at the moment.</p>  <!-- Empty state message -->
+                <a href="{% url 'dashboard' %}" class="btn btn-primary">  <!-- Dashboard link -->
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard  <!-- Back button -->
+                </a>
+            </div>
+            {% endif %}  <!-- End empty state -->
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for AJAX status updates -->
+<script>
+function updateActionStatus(actionId, newStatus) {  // Function to update action status
+    fetch(`/action/${actionId}/update-status/`, {  // AJAX request to update status
+        method: 'POST',  // POST method
+        headers: {  // Request headers
+            'Content-Type': 'application/x-www-form-urlencoded',  // Content type
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value  // CSRF token
+        },
+        body: `status=${newStatus}`  // Request body with new status
+    })
+    .then(response => response.json())  // Parse JSON response
+    .then(data => {  // Handle response data
+        if (data.success) {  // If successful
+            location.reload();  // Reload page to show updated status
+        } else {  // If failed
+            alert('Error: ' + data.message);  // Show error message
+        }
+    })
+    .catch(error => {  // Handle errors
+        console.error('Error:', error);  // Log error
+        alert('An error occurred while updating the action status.');  // Show error message
+    });
+}
+</script>
+{% endblock %}  <!-- End content block --> 

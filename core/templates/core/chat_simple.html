@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeChain AI - Chat Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f23;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #1a1a2e;
+            padding: 16px 24px;
+            border-bottom: 1px solid #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #007AFF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 32px;
+            animation: fadeIn 0.3s ease-in;
+            position: relative;
+        }
+
+        .message:last-child {
+            margin-bottom: 0;
+        }
+
+        .message::after {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        }
+
+        .message:last-child::after {
+            display: none;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.ai {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 24px 28px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            line-height: 1.6;
+            position: relative;
+            font-size: 15px;
+            letter-spacing: 0.2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.user .message-bubble {
+            background: #007AFF;
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.ai .message-bubble {
+            background: #2d2d2d;
+            color: white;
+            border-bottom-left-radius: 6px;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #007AFF;
+            color: white;
+        }
+
+        .message.ai .message-avatar {
+            background: #10A37F;
+            color: white;
+        }
+
+        .chat-input-container {
+            border-top: 1px solid #2d2d2d;
+            padding: 24px;
+            background: #1a1a2e;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #2d2d2d;
+            border: 1px solid #404040;
+            border-radius: 24px;
+            padding: 16px 20px;
+            color: white;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .chat-input:focus {
+            border-color: #007AFF;
+        }
+
+        .upload-btn {
+            background: #2d2d2d;
+            border: 1px solid #404040;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .upload-btn:hover {
+            background: #404040;
+            color: white;
+        }
+
+        .upload-btn:active {
+            transform: scale(0.95);
+        }
+
+        .upload-btn.uploading {
+            background: #007AFF;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .send-btn {
+            background: #007AFF;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background: #0056CC;
+        }
+
+        .send-btn:disabled {
+            background: #404040;
+            cursor: not-allowed;
+        }
+
+        .file-attachment {
+            background: #1a1a1a;
+            border: 1px solid #404040;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .file-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .file-size {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .remove-file {
+            background: #ff4444;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 20px;
+            background: #2d2d2d;
+            border-radius: 20px;
+            border-bottom-left-radius: 6px;
+            max-width: 70%;
+            margin-bottom: 24px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #888;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+            
+            .chat-messages {
+                padding: 16px;
+            }
+            
+            .chat-input-container {
+                padding: 16px;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+                padding: 16px 20px;
+                font-size: 14px;
+            }
+            
+            .message-content {
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            
+            .message-content h1 { font-size: 20px; }
+            .message-content h2 { font-size: 18px; }
+            .message-content h3 { font-size: 16px; }
+            .message-content h4 { font-size: 15px; }
+            .message-content h5 { font-size: 14px; }
+            .message-content h6 { font-size: 13px; }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification-text {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .notification-details {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .message-content {
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            margin: 0;
+            box-shadow: none;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            line-height: 1.7;
+            font-size: 15px;
+            letter-spacing: 0.2px;
+        }
+
+        .message-content p {
+            margin: 0 0 12px 0;
+            line-height: 1.7;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content h1, .message-content h2, .message-content h3, 
+        .message-content h4, .message-content h5, .message-content h6 {
+            margin: 20px 0 12px 0;
+            color: inherit;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .message-content h1 { 
+            font-size: 22px; 
+            margin-top: 0;
+        }
+        .message-content h2 { 
+            font-size: 20px; 
+            margin-top: 0;
+        }
+        .message-content h3 { 
+            font-size: 18px; 
+            margin-top: 0;
+        }
+        .message-content h4 { 
+            font-size: 16px; 
+            margin-top: 0;
+        }
+        .message-content h5 { 
+            font-size: 15px; 
+            margin-top: 0;
+        }
+        .message-content h6 { 
+            font-size: 14px; 
+            margin-top: 0;
+        }
+
+        .message-content ul, .message-content ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+
+        .message-content li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .message-content blockquote {
+            border-left: 4px solid #007AFF;
+            margin: 16px 0;
+            padding: 12px 16px;
+            background: rgba(0, 122, 255, 0.1);
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+        }
+
+        .message-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: inherit;
+        }
+
+        .message-content pre {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1.5;
+        }
+
+        .message-content pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 2px 4px;
+        }
+
+        .bg-primary {
+            background: #007AFF !important;
+            color: white !important;
+        }
+
+        .bg-success {
+            background: #28a745 !important;
+            color: white !important;
+        }
+
+        .bg-warning {
+            background: #ffc107 !important;
+            color: #212529 !important;
+        }
+
+        .bg-info {
+            background: #17a2b8 !important;
+            color: white !important;
+        }
+
+        .bg-danger {
+            background: #dc3545 !important;
+            color: white !important;
+        }
+
+        .text-primary {
+            color: #007AFF !important;
+        }
+
+        .text-success {
+            color: #28a745 !important;
+        }
+
+        .text-warning {
+            color: #ffc107 !important;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .text-info {
+            color: #17a2b8 !important;
+        }
+
+        .text-secondary {
+            color: #6c757d !important;
+        }
+
+        .highlight {
+            background: rgba(255, 193, 7, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 16px 0;
+        }
+
+        .content-section {
+            margin: 16px 0;
+            padding: 12px 0;
+        }
+
+        .content-section:first-child {
+            margin-top: 0;
+        }
+
+        .content-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content ul li::marker {
+            color: #007AFF;
+        }
+
+        .message-content ol li::marker {
+            color: #007AFF;
+            font-weight: 600;
+        }
+
+        .admin-report-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 4px solid #007AFF;
+        }
+
+        .admin-report-title {
+            font-weight: 600;
+            color: #007AFF;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .admin-report-content {
+            line-height: 1.6;
+        }
+
+        .mt-2 { margin-top: 8px; }
+        .mt-3 { margin-top: 12px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 12px; }
+        .py-2 { padding-top: 8px; padding-bottom: 8px; }
+        .py-3 { padding-top: 12px; padding-bottom: 12px; }
+
+        /* Enhanced structure styling */
+        .admin-section-header {
+            margin: 16px 0 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .report-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            border-left: 4px solid #007AFF;
+        }
+
+        .key-value-pair {
+            display: flex;
+            margin: 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .key-value-pair:last-child {
+            border-bottom: none;
+        }
+
+        .key-value-pair .key {
+            font-weight: 600;
+            color: #007AFF;
+            min-width: 120px;
+            margin-right: 12px;
+        }
+
+        .key-value-pair .value {
+            flex: 1;
+            color: inherit;
+        }
+
+        .section-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 16px 0;
+        }
+
+        .badge-container {
+            display: inline-block;
+            margin: 4px 8px 4px 0;
+        }
+
+        /* Improved paragraph spacing */
+        .message-content p {
+            margin: 0 0 12px 0;
+            line-height: 1.7;
+            text-align: justify;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Better list spacing */
+        .message-content ul, .message-content ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        .message-content li {
+            margin: 8px 0;
+            line-height: 1.6;
+            padding-left: 4px;
+        }
+
+        /* Enhanced blockquote styling */
+        .message-content blockquote {
+            border-left: 4px solid #007AFF;
+            margin: 20px 0;
+            padding: 16px 20px;
+            background: rgba(0, 122, 255, 0.1);
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            position: relative;
+        }
+
+        .message-content blockquote::before {
+            content: '"';
+            font-size: 24px;
+            color: #007AFF;
+            position: absolute;
+            top: 8px;
+            left: 8px;
+        }
+
+        /* Improved code styling */
+        .message-content code {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Enhanced pre styling */
+        .message-content pre {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 20px 0;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .message-content pre::before {
+            content: 'Code';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Better header spacing */
+        .message-content h1, .message-content h2, .message-content h3, 
+        .message-content h4, .message-content h5, .message-content h6 {
+            margin: 24px 0 16px 0;
+            color: inherit;
+            font-weight: 600;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .message-content h1::after, .message-content h2::after {
+            content: '';
+            display: block;
+            height: 2px;
+            background: linear-gradient(90deg, #007AFF, transparent);
+            margin-top: 8px;
+            border-radius: 1px;
+        }
+
+        /* Enhanced badge styling */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 4px 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Improved highlight styling */
+        .highlight {
+            background: rgba(255, 193, 7, 0.25);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        /* Better mobile responsiveness for structure */
+        @media (max-width: 768px) {
+            .key-value-pair {
+                flex-direction: column;
+            }
+            
+            .key-value-pair .key {
+                min-width: auto;
+                margin-right: 0;
+                margin-bottom: 4px;
+            }
+            
+            .admin-section-header {
+                margin: 12px 0 6px 0;
+                padding: 6px 0;
+            }
+            
+            .report-section {
+                padding: 12px;
+                margin: 12px 0;
+            }
+            
+            .message-content h1, .message-content h2, .message-content h3, 
+            .message-content h4, .message-content h5, .message-content h6 {
+                margin: 20px 0 12px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <span>SafeChain AI</span>
+            </div>
+            <div class="user-info">
+                <span>{{ user.email }}</span>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-bubble">
+                        <strong>Welcome to SafeChain AI! 🛡️</strong><br><br>
+                        I'm your AI assistant here to help with:<br>
+                        • Investment questions and tier information<br>
+                        • Payment verification and proof of payment uploads<br>
+                        • Technical support and account issues<br>
+                        • Referral program inquiries<br><br>
+                        <strong>Important Investment Rules:</strong><br>
+                        • You cannot reinvest in the same tier - you must keep growing to higher tiers<br>
+                        • You can invest ANY amount you want, as long as you don't reinvest in the same tier<br>
+                        • Tier amounts shown are examples - you're free to invest any amount in higher tiers<br><br>
+                        How can I help you today?
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator hidden" id="typingIndicator">
+                <div class="message-avatar">🤖</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.pdf" class="hidden">
+                    <button class="upload-btn" onclick="triggerFileUpload()" title="Upload files">
+                        📎
+                    </button>
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Type your message here..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send message">
+                        ➤
+                    </button>
+                </div>
+                
+                <div id="fileAttachments" class="hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let currentTicketId = null;
+
+        const chatInput = document.getElementById('chatInput');
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            // Validate file types and sizes
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            
+            let validFiles = [];
+            
+            files.forEach(file => {
+                if (!validTypes.includes(file.type)) {
+                    alert(`File type not supported: ${file.name}. Please upload JPG, PNG, or PDF files only.`);
+                    return;
+                }
+                
+                if (file.size > maxSize) {
+                    alert(`File too large: ${file.name}. Maximum size is 10MB.`);
+                    return;
+                }
+                
+                validFiles.push(file);
+            });
+            
+            selectedFiles = selectedFiles.concat(validFiles);
+            displayFileAttachments();
+            
+            // Clear the input so the same file can be selected again
+            e.target.value = '';
+        });
+
+        function displayFileAttachments() {
+            const container = document.getElementById('fileAttachments');
+            if (selectedFiles.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            container.innerHTML = selectedFiles.map((file, index) => `
+                <div class="file-attachment">
+                    <div class="file-preview">
+                        ${file.type.startsWith('image/') ? '🖼️' : '📄'}
+                    </div>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button class="remove-file" onclick="removeFile(${index})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            displayFileAttachments();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').classList.remove('hidden');
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').classList.add('hidden');
+        }
+
+        function addMessage(message, isUser = false) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+
+            // Format the message content
+            const formattedMessage = formatMessage(message);
+
+            // Avatar: user gets initials or icon, AI gets 🤖
+            let avatarHTML = isUser
+                ? `<div class="message-avatar user">👤</div>`
+                : `<div class="message-avatar ai">🤖</div>`;
+
+            // Bubble with timestamp inside
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            let bubbleHTML = `
+                <div class="message-bubble ${isUser ? 'user' : 'ai'}">
+                    <div class="message-content">${formattedMessage}</div>
+                    <div class="message-time" style="font-size:12px;color:#bbb;text-align:${isUser ? 'right' : 'left'};margin-top:8px;">${timeString}</div>
+                </div>
+            `;
+
+            // Order: user is right (bubble then avatar), AI is left (avatar then bubble)
+            if (isUser) {
+                messageDiv.innerHTML = `${bubbleHTML}${avatarHTML}`;
+            } else {
+                messageDiv.innerHTML = `${avatarHTML}${bubbleHTML}`;
+            }
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatMessage(message) {
+            // Convert markdown-style formatting to HTML
+            let formatted = message;
+            
+            // Pre-process: Add spacing around sections for better structure
+            formatted = formatted.replace(/([A-Z][a-z]+ [A-Z][a-z]+:)/g, '\n\n$1\n');
+            formatted = formatted.replace(/(\*\*[^*]+\*\*:)/g, '\n\n$1\n');
+            
+            // Bold text: **text** or __text__
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/__(.*?)__/g, '<strong>$1</strong>');
+            
+            // Italic text: *text* or _text_
+            formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            formatted = formatted.replace(/_(.*?)_/g, '<em>$1</em>');
+            
+            // Code: `code`
+            formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
+            
+            // Headers: # Header, ## Header, etc.
+            formatted = formatted.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+            formatted = formatted.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            formatted = formatted.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+            
+            // Lists: - item or * item
+            formatted = formatted.replace(/^[\s]*[-*] (.*$)/gim, '<li>$1</li>');
+            formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            
+            // Numbered lists: 1. item
+            formatted = formatted.replace(/^[\s]*\d+\. (.*$)/gim, '<li>$1</li>');
+            formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ol>$1</ol>');
+            
+            // Blockquotes: > text
+            formatted = formatted.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+            
+            // Line breaks - handle after other formatting
+            formatted = formatted.replace(/\n/g, '<br>');
+            
+            // Special formatting for common patterns
+            formatted = formatted.replace(/✅/g, '<span class="text-success">✅</span>');
+            formatted = formatted.replace(/❌/g, '<span class="text-danger">❌</span>');
+            formatted = formatted.replace(/🚨/g, '<span class="text-danger">🚨</span>');
+            formatted = formatted.replace(/📋/g, '<span class="text-info">📋</span>');
+            formatted = formatted.replace(/🔍/g, '<span class="text-warning">🔍</span>');
+            formatted = formatted.replace(/📎/g, '<span class="text-primary">📎</span>');
+            formatted = formatted.replace(/⏱️/g, '<span class="text-warning">⏱️</span>');
+            formatted = formatted.replace(/📊/g, '<span class="text-info">📊</span>');
+            formatted = formatted.replace(/🎫/g, '<span class="text-primary">🎫</span>');
+            formatted = formatted.replace(/📧/g, '<span class="text-info">📧</span>');
+            formatted = formatted.replace(/🔧/g, '<span class="text-secondary">🔧</span>');
+            
+            // Highlight important sections
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<span class="highlight">$1</span>');
+            
+            // Format admin areas with better structure
+            formatted = formatted.replace(/(Admin Area|Issue Type|Priority|User|Problem Description|What User Wants|Additional Context|Suggested Admin Action):/g, '<div class="admin-section-header"><strong class="text-primary">$1:</strong></div>');
+            
+            // Format status and priority badges
+            formatted = formatted.replace(/(High|Medium|Low|Urgent)/g, '<span class="badge bg-warning">$1</span>');
+            formatted = formatted.replace(/(Pending|In Progress|Fixed|Confirmed|Rejected)/g, '<span class="badge bg-info">$1</span>');
+            
+            // Format email addresses
+            formatted = formatted.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<code>$1</code>');
+            
+            // Format ticket IDs
+            formatted = formatted.replace(/#(\d+)/g, '<span class="badge bg-primary">#$1</span>');
+            
+            // Format amounts and numbers
+            formatted = formatted.replace(/\$(\d+(?:,\d{3})*(?:\.\d{2})?)/g, '<span class="text-success">$$$1</span>');
+            
+            // Format file names
+            formatted = formatted.replace(/(\w+\.(?:pdf|jpg|jpeg|png|doc|docx|txt))/gi, '<code>$1</code>');
+            
+            // Enhanced structure detection and formatting
+            // Detect and format admin reports
+            formatted = formatted.replace(/(Admin Report|Issue Summary|User Request|Action Required):/g, '<div class="report-section"><h4 class="text-primary">$1:</h4>');
+            
+            // Format key-value pairs
+            formatted = formatted.replace(/([A-Z][a-z\s]+):\s*([^\n]+)/g, '<div class="key-value-pair"><span class="key">$1:</span> <span class="value">$2</span></div>');
+            
+            // Add spacing for better readability
+            formatted = formatted.replace(/(<h[1-6]>.*<\/h[1-6]>)/g, '<div class="mt-3 mb-2">$1</div>');
+            formatted = formatted.replace(/(<ul>.*<\/ul>)/s, '<div class="mt-2 mb-2">$1</div>');
+            formatted = formatted.replace(/(<ol>.*<\/ol>)/s, '<div class="mt-2 mb-2">$1</div>');
+            formatted = formatted.replace(/(<blockquote>.*<\/blockquote>)/s, '<div class="mt-2 mb-2">$1</div>');
+            
+            // Add section dividers for better structure
+            formatted = formatted.replace(/(\n{2,})/g, '<div class="section-divider"></div>');
+            
+            // Wrap paragraphs for better spacing
+            formatted = formatted.replace(/([^<>]+)(?=\n|$)/g, '<p>$1</p>');
+            
+            // Clean up excessive line breaks
+            formatted = formatted.replace(/(<br>\s*){3,}/g, '<br><br>');
+            
+            // Add spacing around badges and important elements
+            formatted = formatted.replace(/(<span class="badge[^>]*>.*?<\/span>)/g, '<div class="badge-container">$1</div>');
+            
+            return formatted;
+        }
+
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message && selectedFiles.length === 0) return;
+            
+            input.value = '';
+            input.style.height = 'auto';
+            
+            addMessage(message, true);
+            showTypingIndicator();
+            
+            // Show uploading state if files are being sent
+            const uploadBtn = document.querySelector('.upload-btn');
+            if (selectedFiles.length > 0) {
+                uploadBtn.classList.add('uploading');
+                uploadBtn.textContent = '⏳';
+            }
+            
+            const formData = new FormData();
+            formData.append('message', message);
+            if (currentTicketId) {
+                formData.append('ticket_id', currentTicketId);
+            }
+            
+            // Add files with proper error handling
+            try {
+                selectedFiles.forEach((file, index) => {
+                    formData.append('files', file);
+                });
+            } catch (error) {
+                console.error('Error adding files to form data:', error);
+                addMessage('Error: Could not process uploaded files. Please try again.');
+                hideTypingIndicator();
+                uploadBtn.classList.remove('uploading');
+                uploadBtn.textContent = '📎';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/chat/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                hideTypingIndicator();
+                
+                if (data.success) {
+                    addMessage(data.response);
+                    if (data.ticket_id) {
+                        currentTicketId = data.ticket_id;
+                    }
+                    
+                    // Show document upload confirmation
+                    if (data.documents_uploaded > 0) {
+                        showDocumentUploadConfirmation(data.documents_uploaded, data.admin_notified);
+                    }
+                } else {
+                    addMessage('Sorry, I encountered an error. Please try again.');
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                console.error('Error sending message:', error);
+                addMessage('Sorry, I encountered an error. Please try again.');
+            } finally {
+                // Reset upload button state
+                uploadBtn.classList.remove('uploading');
+                uploadBtn.textContent = '📎';
+            }
+            
+            selectedFiles = [];
+            displayFileAttachments();
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function triggerFileUpload() {
+            try {
+                const fileInput = document.getElementById('fileInput');
+                if (fileInput) {
+                    fileInput.click();
+                } else {
+                    console.error('File input element not found');
+                    alert('Upload functionality is not available. Please refresh the page and try again.');
+                }
+            } catch (error) {
+                console.error('Error triggering file upload:', error);
+                alert('Upload button error. Please refresh the page and try again.');
+            }
+        }
+
+        function showDocumentUploadConfirmation(documentsCount, adminNotified) {
+            // Create a temporary notification
+            const notification = document.createElement('div');
+            notification.className = 'upload-notification';
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">📎</div>
+                    <div class="notification-text">
+                        <div class="notification-title">Document Uploaded Successfully!</div>
+                        <div class="notification-details">
+                            ${documentsCount} document(s) uploaded and sent to admin team
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add notification styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #10A37F;
+                color: white;
+                padding: 16px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+                max-width: 350px;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        scrollToBottom();
+    </script>
+</body>
+</html> 

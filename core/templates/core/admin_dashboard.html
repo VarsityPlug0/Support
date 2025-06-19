@@ -1,0 +1,152 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Admin Dashboard - Safe Chain Assistant{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row">  <!-- Main content row -->
+    <!-- Welcome Section -->
+    <div class="col-12 mb-4">  <!-- Full width welcome section -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <h2 class="card-title">Admin Dashboard</h2>  <!-- Dashboard title -->
+                <p class="text-muted mb-0">System overview and recent activities</p>  <!-- Subtitle -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="col-md-3 mb-4">  <!-- Statistics column -->
+        <div class="card bg-dark border-secondary text-center">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <div class="display-6 text-primary mb-2">🎫</div>  <!-- Ticket icon -->
+                <h3 class="card-title">{{ total_tickets }}</h3>  <!-- Total tickets count -->
+                <p class="card-text text-muted">Total Tickets</p>  <!-- Label -->
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">  <!-- Statistics column -->
+        <div class="card bg-dark border-secondary text-center">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <div class="display-6 text-warning mb-2">⏳</div>  <!-- Pending icon -->
+                <h3 class="card-title">{{ pending_tickets }}</h3>  <!-- Pending tickets count -->
+                <p class="card-text text-muted">Pending Tickets</p>  <!-- Label -->
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">  <!-- Statistics column -->
+        <div class="card bg-dark border-secondary text-center">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <div class="display-6 text-info mb-2">📁</div>  <!-- File icon -->
+                <h3 class="card-title">{{ pending_pops }}</h3>  <!-- Pending POPs count -->
+                <p class="card-text text-muted">Pending POPs</p>  <!-- Label -->
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">  <!-- Statistics column -->
+        <div class="card bg-dark border-secondary text-center">  <!-- Dark card with border -->
+            <div class="card-body">  <!-- Card content -->
+                <div class="display-6 text-success mb-2">📊</div>  <!-- Chart icon -->
+                <h3 class="card-title">{{ total_tickets|add:pending_tickets|add:pending_pops }}</h3>  <!-- Total items count -->
+                <p class="card-text text-muted">Total Items</p>  <!-- Label -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-md-6 mb-4">  <!-- Quick actions column -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h5 class="card-title mb-0">Quick Actions</h5>  <!-- Section title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                <div class="d-grid gap-2">  <!-- Button group -->
+                    <a href="{% url 'admin_reports' %}" class="btn btn-success">  <!-- Admin reports button -->
+                        <i class="bi bi-file-earmark-text me-2"></i>Admin Reports
+                    </a>
+                    <a href="{% url 'admin_tickets' %}" class="btn btn-primary">  <!-- Manage tickets button -->
+                        <i class="bi bi-ticket-detailed me-2"></i>Manage Tickets
+                    </a>
+                    <a href="{% url 'admin_pops' %}" class="btn btn-outline-light">  <!-- Manage POPs button -->
+                        <i class="bi bi-file-earmark-text me-2"></i>Review Proof of Payments
+                    </a>
+                    <a href="/admin/" class="btn btn-outline-light">  <!-- Django admin button -->
+                        <i class="bi bi-gear me-2"></i>Django Admin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="col-md-6 mb-4">  <!-- Recent activities column -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h5 class="card-title mb-0">Recent Admin Activities</h5>  <!-- Section title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                {% if recent_activities %}  <!-- If there are recent activities -->
+                    <div class="list-group list-group-flush bg-transparent">  <!-- List group -->
+                        {% for activity in recent_activities %}  <!-- Loop through activities -->
+                            <div class="list-group-item bg-transparent border-secondary">  <!-- Activity item -->
+                                <div class="d-flex justify-content-between align-items-start">  <!-- Flex container -->
+                                    <div class="flex-grow-1">  <!-- Activity info -->
+                                        <h6 class="mb-1">{{ activity.action }}</h6>  <!-- Activity action -->
+                                        <small class="text-muted">{{ activity.admin_user.email }} - {{ activity.timestamp|date:"M d, Y H:i" }}</small>  <!-- Admin and timestamp -->
+                                        {% if activity.details %}  <!-- If there are details -->
+                                            <br><small class="text-muted">{{ activity.details }}</small>  <!-- Activity details -->
+                                        {% endif %}
+                                    </div>
+                                    <span class="badge bg-secondary ms-2">{{ activity.target_model }}</span>  <!-- Target model badge -->
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}  <!-- If no recent activities -->
+                    <p class="text-muted text-center">No recent activities</p>  <!-- No activities message -->
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="col-12">  <!-- Full width section -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h5 class="card-title mb-0">System Status</h5>  <!-- Section title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                <div class="row">  <!-- Status row -->
+                    <div class="col-md-3">  <!-- Status column -->
+                        <div class="text-center">  <!-- Centered content -->
+                            <div class="display-6 text-success mb-2">✅</div>  <!-- Success icon -->
+                            <h6>System Online</h6>  <!-- Status title -->
+                            <small class="text-muted">All services operational</small>  <!-- Status description -->
+                        </div>
+                    </div>
+                    <div class="col-md-3">  <!-- Status column -->
+                        <div class="text-center">  <!-- Centered content -->
+                            <div class="display-6 text-primary mb-2">🤖</div>  <!-- AI icon -->
+                            <h6>AI Assistant</h6>  <!-- Status title -->
+                            <small class="text-muted">Available for chat</small>  <!-- Status description -->
+                        </div>
+                    </div>
+                    <div class="col-md-3">  <!-- Status column -->
+                        <div class="text-center">  <!-- Centered content -->
+                            <div class="display-6 text-info mb-2">📁</div>  <!-- File icon -->
+                            <h6>File Upload</h6>  <!-- Status title -->
+                            <small class="text-muted">Working normally</small>  <!-- Status description -->
+                        </div>
+                    </div>
+                    <div class="col-md-3">  <!-- Status column -->
+                        <div class="text-center">  <!-- Centered content -->
+                            <div class="display-6 text-warning mb-2">📊</div>  <!-- Database icon -->
+                            <h6>Database</h6>  <!-- Status title -->
+                            <small class="text-muted">Connected and stable</small>  <!-- Status description -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

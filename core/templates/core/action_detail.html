@@ -1,0 +1,191 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+{% load static %}  <!-- Load static files -->
+
+{% block title %}{{ action.title }} - Action Details{% endblock %}  <!-- Set page title -->
+
+{% block content %}  <!-- Start content block -->
+<div class="container mt-4">  <!-- Main container with top margin -->
+    <div class="row">  <!-- Row for layout -->
+        <div class="col-12">  <!-- Full width column -->
+            <div class="d-flex justify-content-between align-items-center mb-4">  <!-- Header with flex layout -->
+                <h1 class="h3 mb-0">Action Details</h1>  <!-- Page title -->
+                <div class="d-flex gap-2">  <!-- Button group -->
+                    <a href="{% url 'actions' %}" class="btn btn-outline-secondary">  <!-- Back to actions link -->
+                        <i class="fas fa-arrow-left"></i> Back to Actions  <!-- Back button with icon -->
+                    </a>
+                </div>
+            </div>
+
+            <!-- Action Details Card -->
+            <div class="card mb-4">  <!-- Main action card -->
+                <div class="card-header">  <!-- Card header -->
+                    <div class="d-flex justify-content-between align-items-center">  <!-- Header layout -->
+                        <h5 class="mb-0">{{ action.title }}</h5>  <!-- Action title -->
+                        <span class="badge bg-{% if action.status == 'pending' %}warning{% elif action.status == 'in_progress' %}info{% elif action.status == 'completed' %}success{% elif action.status == 'confirmed' %}secondary{% else %}danger{% endif %}">  <!-- Status badge -->
+                            {{ action.get_status_display }}  <!-- Status text -->
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">  <!-- Card body -->
+                    <div class="row">  <!-- Row for details -->
+                        <div class="col-md-8">  <!-- Main content column -->
+                            <h6 class="text-muted">Description</h6>  <!-- Description label -->
+                            <p class="mb-3">{{ action.description }}</p>  <!-- Action description -->
+
+                            {% if action.instructions %}  <!-- If instructions exist -->
+                            <h6 class="text-muted">Instructions</h6>  <!-- Instructions label -->
+                            <p class="mb-3">{{ action.instructions }}</p>  <!-- Action instructions -->
+                            {% endif %}
+
+                            {% if action.completion_notes %}  <!-- If completion notes exist -->
+                            <h6 class="text-muted">Completion Notes</h6>  <!-- Completion notes label -->
+                            <p class="mb-3">{{ action.completion_notes }}</p>  <!-- Completion notes -->
+                            {% endif %}
+
+                            {% if action.admin_notes %}  <!-- If admin notes exist -->
+                            <h6 class="text-muted">Admin Notes</h6>  <!-- Admin notes label -->
+                            <p class="mb-3">{{ action.admin_notes }}</p>  <!-- Admin notes -->
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">  <!-- Sidebar column -->
+                            <div class="card">  <!-- Info card -->
+                                <div class="card-body">  <!-- Card body -->
+                                    <h6 class="card-title">Action Information</h6>  <!-- Card title -->
+                                    
+                                    <div class="mb-3">  <!-- Priority section -->
+                                        <strong>Priority:</strong>  <!-- Priority label -->
+                                        <span class="badge bg-{% if action.priority == 'urgent' %}danger{% elif action.priority == 'high' %}warning{% elif action.priority == 'medium' %}info{% else %}secondary{% endif %}">  <!-- Priority badge -->
+                                            {{ action.get_priority_display }}  <!-- Priority text -->
+                                        </span>
+                                    </div>
+
+                                    <div class="mb-3">  <!-- Status section -->
+                                        <strong>Status:</strong>  <!-- Status label -->
+                                        <span class="badge bg-{% if action.status == 'pending' %}warning{% elif action.status == 'in_progress' %}info{% elif action.status == 'completed' %}success{% elif action.status == 'confirmed' %}secondary{% else %}danger{% endif %}">  <!-- Status badge -->
+                                            {{ action.get_status_display }}  <!-- Status text -->
+                                        </span>
+                                    </div>
+
+                                    {% if action.due_date %}  <!-- If due date exists -->
+                                    <div class="mb-3">  <!-- Due date section -->
+                                        <strong>Due Date:</strong><br>  <!-- Due date label -->
+                                        <span class="{% if action.due_date < now %}text-danger{% endif %}">  <!-- Red text if overdue -->
+                                            {{ action.due_date|date:"F d, Y" }}  <!-- Formatted due date -->
+                                        </span>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mb-3">  <!-- Created date section -->
+                                        <strong>Created:</strong><br>  <!-- Created label -->
+                                        {{ action.created_at|date:"F d, Y" }}  <!-- Formatted created date -->
+                                    </div>
+
+                                    {% if action.completed_at %}  <!-- If completed date exists -->
+                                    <div class="mb-3">  <!-- Completed date section -->
+                                        <strong>Completed:</strong><br>  <!-- Completed label -->
+                                        {{ action.completed_at|date:"F d, Y" }}  <!-- Formatted completed date -->
+                                    </div>
+                                    {% endif %}
+
+                                    {% if action.updated_at and action.updated_at != action.created_at %}  <!-- If updated date exists and different from created -->
+                                    <div class="mb-3">  <!-- Updated date section -->
+                                        <strong>Last Updated:</strong><br>  <!-- Updated label -->
+                                        {{ action.updated_at|date:"F d, Y" }}  <!-- Formatted updated date -->
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            {% if action.status == 'pending' %}  <!-- If action is pending -->
+            <div class="card mb-4">  <!-- Controls card -->
+                <div class="card-header">  <!-- Card header -->
+                    <h5 class="mb-0">Action Controls</h5>  <!-- Controls title -->
+                </div>
+                <div class="card-body">  <!-- Card body -->
+                    <form method="post">  <!-- Form for status updates -->
+                        {% csrf_token %}  <!-- CSRF token -->
+                        <input type="hidden" name="action_type" value="start">  <!-- Hidden action type -->
+                        <button type="submit" class="btn btn-primary">  <!-- Start action button -->
+                            <i class="fas fa-play"></i> Start Action  <!-- Button with icon -->
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if action.status == 'in_progress' %}  <!-- If action is in progress -->
+            <div class="card mb-4">  <!-- Controls card -->
+                <div class="card-header">  <!-- Card header -->
+                    <h5 class="mb-0">Action Controls</h5>  <!-- Controls title -->
+                </div>
+                <div class="card-body">  <!-- Card body -->
+                    <form method="post">  <!-- Form for status updates -->
+                        {% csrf_token %}  <!-- CSRF token -->
+                        <div class="mb-3">  <!-- Completion notes section -->
+                            <label for="completion_notes" class="form-label">Completion Notes (Optional)</label>  <!-- Notes label -->
+                            <textarea class="form-control" id="completion_notes" name="completion_notes" rows="3" placeholder="Add any notes about how you completed this action..."></textarea>  <!-- Notes textarea -->
+                        </div>
+                        <div class="d-flex gap-2">  <!-- Button group -->
+                            <input type="hidden" name="action_type" value="complete">  <!-- Hidden action type -->
+                            <button type="submit" class="btn btn-success">  <!-- Complete action button -->
+                                <i class="fas fa-check"></i> Mark as Complete  <!-- Button with icon -->
+                            </button>
+                            <input type="hidden" name="action_type" value="cancel">  <!-- Hidden action type for cancel -->
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this action?')">  <!-- Cancel action button -->
+                                <i class="fas fa-times"></i> Cancel Action  <!-- Button with icon -->
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if action.status == 'completed' %}  <!-- If action is completed -->
+            <div class="alert alert-info">  <!-- Info alert -->
+                <i class="fas fa-info-circle"></i>  <!-- Info icon -->
+                This action has been marked as completed and is waiting for admin confirmation.  <!-- Info message -->
+            </div>
+            {% endif %}
+
+            {% if action.status == 'confirmed' %}  <!-- If action is confirmed -->
+            <div class="alert alert-success">  <!-- Success alert -->
+                <i class="fas fa-check-circle"></i>  <!-- Success icon -->
+                This action has been confirmed by an administrator.  <!-- Success message -->
+            </div>
+            {% endif %}
+
+            {% if action.status == 'cancelled' %}  <!-- If action is cancelled -->
+            <div class="alert alert-warning">  <!-- Warning alert -->
+                <i class="fas fa-exclamation-triangle"></i>  <!-- Warning icon -->
+                This action has been cancelled.  <!-- Warning message -->
+            </div>
+            {% endif %}
+
+            <!-- Related Information -->
+            {% if action.related_ticket %}  <!-- If related ticket exists -->
+            <div class="card mb-4">  <!-- Related ticket card -->
+                <div class="card-header">  <!-- Card header -->
+                    <h5 class="mb-0">Related Ticket</h5>  <!-- Card title -->
+                </div>
+                <div class="card-body">  <!-- Card body -->
+                    <div class="d-flex justify-content-between align-items-center">  <!-- Ticket info layout -->
+                        <div>  <!-- Ticket details -->
+                            <h6>{{ action.related_ticket.title }}</h6>  <!-- Ticket title -->
+                            <p class="text-muted mb-0">{{ action.related_ticket.description|truncatewords:30 }}</p>  <!-- Truncated description -->
+                        </div>
+                        <a href="{% url 'ticket_detail' action.related_ticket.id %}" class="btn btn-sm btn-outline-primary">  <!-- View ticket link -->
+                            View Ticket  <!-- Link text -->
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}  <!-- End content block --> 

@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}My Tickets - Safe Chain Assistant{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-dark border-warning">
+            <div class="card-body text-center">
+                <div class="display-6 text-warning mb-2">{{ total_open }}</div>
+                <h6 class="card-title">Open Tickets</h6>
+                <small class="text-muted">Requiring attention</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark border-success">
+            <div class="card-body text-center">
+                <div class="display-6 text-success mb-2">{{ total_resolved }}</div>
+                <h6 class="card-title">Resolved</h6>
+                <small class="text-muted">Successfully closed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark border-info">
+            <div class="card-body text-center">
+                <div class="display-6 text-info mb-2">{{ all_tickets.count }}</div>
+                <h6 class="card-title">Total Tickets</h6>
+                <small class="text-muted">All time</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-dark border-primary">
+            <div class="card-body text-center">
+                <div class="display-6 text-primary mb-2">+</div>
+                <h6 class="card-title">New Ticket</h6>
+                <a href="{% url 'chat' %}" class="btn btn-primary btn-sm">Start Chat</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Open Tickets Section -->
+{% if open_tickets %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-dark border-warning">
+            <div class="card-header">
+                <h5 class="card-title mb-0 text-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Open Tickets ({{ total_open }})
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in open_tickets %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ ticket.title }}</strong>
+                                        {% if ticket.description|length > 50 %}
+                                            <br><small class="text-muted">{{ ticket.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ ticket.intent_category|title }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ ticket.priority|yesno:'danger,warning,success,secondary' }}">{{ ticket.priority|title }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">{{ ticket.status|title }}</span>
+                                    </td>
+                                    <td>{{ ticket.created_at|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'chat' %}?ticket={{ ticket.id }}" class="btn btn-outline-primary" title="Continue Chat">
+                                                <i class="bi bi-chat"></i>
+                                            </a>
+                                            {% if ticket.requires_pop %}
+                                                <a href="{% url 'upload_pop' %}" class="btn btn-outline-warning" title="Upload POP">
+                                                    <i class="bi bi-upload"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Resolved Tickets Section -->
+{% if resolved_tickets %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-dark border-success">
+            <div class="card-header">
+                <h5 class="card-title mb-0 text-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Resolved Tickets ({{ total_resolved }})
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Resolved</th>
+                                <th>Satisfaction</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in resolved_tickets %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ ticket.title }}</strong>
+                                        {% if ticket.description|length > 50 %}
+                                            <br><small class="text-muted">{{ ticket.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ ticket.intent_category|title }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">{{ ticket.status|title }}</span>
+                                    </td>
+                                    <td>{{ ticket.updated_at|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        {% if ticket.user_satisfaction %}
+                                            <div class="text-warning">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= ticket.user_satisfaction %}
+                                                        <i class="bi bi-star-fill"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <small class="text-muted ms-1">({{ ticket.user_satisfaction }}/5)</small>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">Not rated</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'chat' %}?ticket={{ ticket.id }}" class="btn btn-outline-primary" title="View Chat">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            {% if ticket.status == 'fixed' and not ticket.user_satisfaction %}
+                                                <a href="{% url 'ticket_confirmation' ticket.id %}" class="btn btn-outline-success" title="Confirm Resolution">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- No Tickets State -->
+{% if not open_tickets and not resolved_tickets %}
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-dark border-secondary">
+            <div class="card-body text-center py-5">
+                <div class="display-4 text-muted mb-3">🎫</div>
+                <h5>No tickets yet</h5>
+                <p class="text-muted">You haven't created any support tickets yet.</p>
+                <a href="{% url 'chat' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-chat me-2"></i>
+                    Start a Chat
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to table rows
+    document.querySelectorAll('tbody tr').forEach(function(row) {
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+    
+    // Add click handlers for action buttons
+    document.querySelectorAll('.btn-group .btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            // Add loading state
+            const originalContent = this.innerHTML;
+            this.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+            this.disabled = true;
+            
+            // Reset after a short delay (for non-navigation buttons)
+            if (!this.href) {
+                setTimeout(() => {
+                    this.innerHTML = originalContent;
+                    this.disabled = false;
+                }, 1000);
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

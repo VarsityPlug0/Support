@@ -1,0 +1,834 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - AI Support{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Chat-style message bubbles - WhatsApp/ChatGPT inspired */
+    .chat-container {
+        background: #f0f2f5;
+        border-radius: 12px;
+        padding: 1rem;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .chat-message {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .chat-message.user {
+        flex-direction: row-reverse;
+    }
+
+    .chat-message.admin {
+        flex-direction: row;
+    }
+
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+    }
+
+    .message-avatar.user {
+        background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+    }
+
+    .message-avatar.admin {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    }
+
+    .message-avatar.urgent {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+
+    .message-avatar.high {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    }
+
+    .message-avatar.medium {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    }
+
+    .message-avatar.low {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 0.75rem 1rem;
+        border-radius: 18px;
+        position: relative;
+        word-wrap: break-word;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .message-bubble.user {
+        background: #dcf8c6;
+        color: #000;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-bubble.admin {
+        background: white;
+        color: #000;
+        border-bottom-left-radius: 4px;
+        border: 1px solid #e9ecef;
+    }
+
+    .message-bubble.urgent {
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        border-left: 4px solid #dc3545;
+    }
+
+    .message-bubble.high {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        border-left: 4px solid #ffc107;
+    }
+
+    .message-bubble.medium {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-left: 4px solid #17a2b8;
+    }
+
+    .message-bubble.low {
+        background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        border-left: 4px solid #28a745;
+    }
+
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .message-sender {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .message-time {
+        color: #6c757d;
+        font-size: 0.75rem;
+    }
+
+    .message-content {
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .message-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: #2c3e50;
+    }
+
+    .message-description {
+        color: #495057;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .message-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.5rem;
+    }
+
+    .message-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+
+    .message-actions {
+        display: flex;
+        gap: 0.25rem;
+        margin-top: 0.5rem;
+    }
+
+    .message-actions .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+    }
+
+    .chat-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+
+    .chat-section-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px 12px 0 0;
+    }
+
+    .chat-section-body {
+        padding: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Existing styles */
+    .management-area-card {
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .management-area-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+
+    .management-area-card h6 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    .management-area-card .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .management-area-card .small {
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
+    .management-area-card .text-truncate {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .management-area-card .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .stat-card.urgent {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    }
+
+    .stat-card.active {
+        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+    }
+
+    .stat-card.resolved {
+        background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    }
+
+    .stat-card.documents {
+        background: linear-gradient(135deg, #ffa726 0%, #ff7043 100%);
+    }
+
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: #343a40;
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 1rem 0.75rem;
+    }
+
+    .table tbody td {
+        padding: 1rem 0.75rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+    }
+
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.375rem;
+    }
+
+    .text-truncate {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 1px solid #dee2e6;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 1rem 1.5rem;
+    }
+
+    .card-header h5 {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 0.5rem 0.75rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-primary {
+        border-color: #007bff;
+        color: #007bff;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .priority-urgent {
+        border-left: 4px solid #dc3545;
+    }
+
+    .priority-high {
+        border-left: 4px solid #ffc107;
+    }
+
+    .priority-medium {
+        border-left: 4px solid #17a2b8;
+    }
+
+    .priority-low {
+        border-left: 4px solid #28a745;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        line-height: 1.2;
+    }
+
+    .display-6 {
+        font-size: 1.5rem;
+        font-weight: 300;
+        line-height: 1.2;
+    }
+
+    .bi {
+        font-size: 1.5rem;
+    }
+
+    .display-4.bi {
+        font-size: 3rem;
+    }
+
+    .display-6.bi {
+        font-size: 2rem;
+    }
+
+    .sidebar {
+        background: #2d3748;
+        min-height: 100vh;
+        padding: 1rem;
+    }
+    
+    .sidebar .nav-link {
+        color: #e2e8f0;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+        background: #4a5568;
+        color: white;
+    }
+    
+    .ticket-row {
+        transition: background-color 0.2s ease;
+    }
+    
+    .ticket-row:hover {
+        background-color: #f7fafc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar">
+            <div class="d-flex flex-column">
+                <h4 class="text-white mb-4">Admin Panel</h4>
+                
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="{% url 'admin_dashboard' %}">
+                        <i class="bi bi-house-door me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_tickets' %}">
+                        <i class="bi bi-ticket-detailed me-2"></i>All Tickets
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_tickets' %}?status=pending">
+                        <i class="bi bi-exclamation-circle me-2"></i>New Complaints
+                        {% if new_tickets > 0 %}
+                            <span class="badge bg-danger ms-auto">{{ new_tickets }}</span>
+                        {% endif %}
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_tickets' %}?status=in_progress">
+                        <i class="bi bi-clock me-2"></i>Active Tickets
+                        {% if active_tickets > 0 %}
+                            <span class="badge bg-warning ms-auto">{{ active_tickets }}</span>
+                        {% endif %}
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_archive' %}">
+                        <i class="bi bi-check-circle me-2"></i>Resolved
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_analytics' %}">
+                        <i class="bi bi-graph-up me-2"></i>Insights
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_pops' %}">
+                        <i class="bi bi-file-earmark-text me-2"></i>Proof of Payments
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Admin Dashboard</h2>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" onclick="refreshStats()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                        <a href="{% url 'admin_tickets' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> View All Tickets
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-card urgent">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ urgent_tickets }}</h3>
+                                    <p class="mb-0">Urgent Tickets</p>
+                                </div>
+                                <i class="bi bi-exclamation-triangle display-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-card active">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ new_tickets }}</h3>
+                                    <p class="mb-0">New Tickets</p>
+                                </div>
+                                <i class="bi bi-clock display-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ active_tickets }}</h3>
+                                    <p class="mb-0">In Progress</p>
+                                </div>
+                                <i class="bi bi-gear display-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="stat-card resolved">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ resolved_tickets }}</h3>
+                                    <p class="mb-0">Resolved</p>
+                                </div>
+                                <i class="bi bi-check-circle display-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ total_documents }}</h3>
+                                    <p class="mb-0">Total Documents</p>
+                                </div>
+                                <i class="bi bi-file-earmark-text display-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ pending_documents }}</h3>
+                                    <p class="mb-0">Pending Review</p>
+                                </div>
+                                <i class="bi bi-clock-history display-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="mb-0">{{ recent_reports|length }}</h3>
+                                    <p class="mb-0">Admin Reports</p>
+                                </div>
+                                <i class="bi bi-file-earmark-check display-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Filters -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Quick Filters</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="fixed">Fixed</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="priorityFilter">
+                                    <option value="">All Priority</option>
+                                    <option value="urgent">Urgent</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="">All Categories</option>
+                                    <option value="billing">Billing/Payment</option>
+                                    <option value="technical">Technical Support</option>
+                                    <option value="account">Account Issues</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="complaint">Complaint</option>
+                                    <option value="feature_request">Feature Request</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Search</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search tickets...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Tickets - Chat Style -->
+                <div class="chat-section">
+                    <div class="chat-section-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">💬 Recent Support Tickets</h5>
+                        <a href="{% url 'admin_tickets' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="chat-section-body">
+                        <div class="chat-container">
+                            {% for ticket in recent_tickets %}
+                            <div class="chat-message user">
+                                <div class="message-avatar user {{ ticket.priority }}">
+                                    {{ ticket.user.email|first|upper }}
+                                </div>
+                                <div class="message-bubble user {{ ticket.priority }}">
+                                    <div class="message-header">
+                                        <span class="message-sender">{{ ticket.user.email }}</span>
+                                        <span class="message-time">{{ ticket.created_at|date:"M d, H:i" }}</span>
+                                    </div>
+                                    <div class="message-content">
+                                        <div class="message-title">#{{ ticket.id }} - {{ ticket.title }}</div>
+                                        <div class="message-description">{{ ticket.intent_category|title }}</div>
+                                        <div class="message-meta">
+                                            {% if ticket.status == 'pending' %}
+                                                <span class="message-badge bg-warning text-dark">Pending</span>
+                                            {% elif ticket.status == 'in_progress' %}
+                                                <span class="message-badge bg-info text-white">In Progress</span>
+                                            {% elif ticket.status == 'fixed' %}
+                                                <span class="message-badge bg-success text-white">Fixed</span>
+                                            {% elif ticket.status == 'confirmed' %}
+                                                <span class="message-badge bg-primary text-white">Confirmed</span>
+                                            {% elif ticket.status == 'rejected' %}
+                                                <span class="message-badge bg-danger text-white">Rejected</span>
+                                            {% endif %}
+                                            
+                                            {% if ticket.priority == 'urgent' %}
+                                                <span class="message-badge bg-danger text-white">Urgent</span>
+                                            {% elif ticket.priority == 'high' %}
+                                                <span class="message-badge bg-warning text-dark">High</span>
+                                            {% elif ticket.priority == 'medium' %}
+                                                <span class="message-badge bg-info text-white">Medium</span>
+                                            {% elif ticket.priority == 'low' %}
+                                                <span class="message-badge bg-success text-white">Low</span>
+                                            {% endif %}
+                                            
+                                            {% if ticket.user.is_admin %}
+                                                <span class="message-badge bg-danger text-white">Admin</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="message-actions">
+                                            <a href="{% url 'admin_ticket_detail' ticket.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                            {% if ticket.requires_pop %}
+                                                <a href="{% url 'upload_pop' %}" class="btn btn-sm btn-outline-warning" title="Upload POP">
+                                                    <i class="bi bi-upload"></i> POP
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="empty-state">
+                                <i class="bi bi-chat-dots"></i>
+                                <p>No tickets found</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Documents - Chat Style -->
+                <div class="chat-section">
+                    <div class="chat-section-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">📄 Recent Documents</h5>
+                        <a href="{% url 'admin_pops' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="chat-section-body">
+                        <div class="chat-container">
+                            {% for doc in recent_documents %}
+                            <div class="chat-message admin">
+                                <div class="message-avatar admin">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                </div>
+                                <div class="message-bubble admin">
+                                    <div class="message-header">
+                                        <span class="message-sender">{{ doc.user.email }}</span>
+                                        <span class="message-time">{{ doc.created_at|date:"M d, H:i" }}</span>
+                                    </div>
+                                    <div class="message-content">
+                                        <div class="message-title">{{ doc.file_name|truncatechars:30 }}</div>
+                                        <div class="message-description">Document uploaded for verification</div>
+                                        <div class="message-meta">
+                                            <span class="message-badge bg-{% if doc.status == 'approved' %}success{% elif doc.status == 'rejected' %}danger{% else %}warning{% endif %} text-white">
+                                                {{ doc.status|title }}
+                                            </span>
+                                        </div>
+                                        <div class="message-actions">
+                                            <a href="#" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i> Review
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="empty-state">
+                                <i class="bi bi-file-earmark-text"></i>
+                                <p>No recent documents</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Management Areas -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">📊 Admin Management Areas</h5>
+                        <p class="text-muted mb-0">Reports grouped by management area for easy access</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for area_name, stats in reports_by_area.items %}
+                            <div class="col-md-4 col-lg-3 mb-3">
+                                <div class="management-area-card p-3 border rounded h-100">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">{{ area_name }}</h6>
+                                        <span class="badge bg-primary">{{ stats.total }}</span>
+                                    </div>
+                                    <div class="small text-muted mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Pending:</span>
+                                            <span class="{% if stats.pending > 0 %}text-warning fw-bold{% endif %}">{{ stats.pending }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Urgent:</span>
+                                            <span class="{% if stats.urgent > 0 %}text-danger fw-bold{% endif %}">{{ stats.urgent }}</span>
+                                        </div>
+                                    </div>
+                                    {% if stats.recent %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Recent:</small>
+                                        {% for report in stats.recent %}
+                                        <div class="small text-truncate" title="{{ report.title }}">
+                                            • {{ report.user.email|truncatechars:15 }}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    <div class="mt-2">
+                                        <a href="#" class="btn btn-sm btn-outline-primary">View Reports</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshStats() {
+    location.reload();
+}
+
+// Filter functionality
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+document.getElementById('priorityFilter').addEventListener('change', applyFilters);
+document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+function applyFilters() {
+    const status = document.getElementById('statusFilter').value;
+    const priority = document.getElementById('priorityFilter').value;
+    const category = document.getElementById('categoryFilter').value;
+    const search = document.getElementById('searchInput').value;
+    
+    let url = '{% url "admin_tickets" %}?';
+    const params = [];
+    
+    if (status) params.push(`status=${status}`);
+    if (priority) params.push(`priority=${priority}`);
+    if (category) params.push(`category=${category}`);
+    if (search) params.push(`search=${encodeURIComponent(search)}`);
+    
+    if (params.length > 0) {
+        window.location.href = url + params.join('&');
+    }
+}
+</script>
+{% endblock %} 

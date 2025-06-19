@@ -1,0 +1,293 @@
+/* Main CSS file for Safe Chain Assistant */
+
+/* Custom font family */
+body {
+    font-family: 'Poppins', sans-serif;  /* Use Poppins font */
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;  /* Scrollbar width */
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a;  /* Track background */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #495057;  /* Thumb background */
+    border-radius: 4px;  /* Rounded corners */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6c757d;  /* Hover state */
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;  /* Smooth transitions */
+}
+
+.card:hover {
+    transform: translateY(-2px);  /* Slight lift on hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);  /* Enhanced shadow */
+}
+
+/* Custom button styles */
+.btn {
+    border-radius: 8px;  /* Rounded corners */
+    font-weight: 500;  /* Medium font weight */
+    transition: all 0.2s ease-in-out;  /* Smooth transitions */
+}
+
+.btn:hover {
+    transform: translateY(-1px);  /* Slight lift on hover */
+}
+
+/* Form control styles */
+.form-control {
+    border-radius: 8px;  /* Rounded corners */
+    border: 1px solid #495057;  /* Border color */
+    background-color: #2b3035;  /* Background color */
+    color: #ffffff;  /* Text color */
+}
+
+.form-control:focus {
+    background-color: #2b3035;  /* Focus background */
+    border-color: #0d6efd;  /* Focus border */
+    color: #ffffff;  /* Focus text */
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);  /* Focus shadow */
+}
+
+/* Table styles */
+.table {
+    border-radius: 8px;  /* Rounded corners */
+    overflow: hidden;  /* Hide overflow */
+}
+
+.table th {
+    background-color: #343a40;  /* Header background */
+    border-bottom: 2px solid #495057;  /* Header border */
+    font-weight: 600;  /* Bold font weight */
+}
+
+.table td {
+    border-bottom: 1px solid #495057;  /* Cell border */
+    vertical-align: middle;  /* Center content */
+}
+
+/* Badge styles */
+.badge {
+    font-weight: 500;  /* Medium font weight */
+    padding: 0.5em 0.75em;  /* Padding */
+    border-radius: 6px;  /* Rounded corners */
+}
+
+/* Chat message styles */
+.chat-message {
+    max-width: 70%;  /* Maximum width */
+    word-wrap: break-word;  /* Wrap long words */
+}
+
+.chat-message.user {
+    background-color: #0d6efd;  /* User message background */
+    color: white;  /* User message text */
+    border-radius: 18px 18px 4px 18px;  /* Rounded corners */
+}
+
+.chat-message.ai {
+    background-color: #6c757d;  /* AI message background */
+    color: white;  /* AI message text */
+    border-radius: 18px 18px 18px 4px;  /* Rounded corners */
+}
+
+/* Loading animation */
+.loading {
+    display: inline-block;  /* Inline block */
+    width: 20px;  /* Width */
+    height: 20px;  /* Height */
+    border: 3px solid #f3f3f3;  /* Border */
+    border-top: 3px solid #0d6efd;  /* Top border */
+    border-radius: 50%;  /* Circular */
+    animation: spin 1s linear infinite;  /* Spin animation */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }  /* Start rotation */
+    100% { transform: rotate(360deg); }  /* End rotation */
+}
+
+/* Custom alert styles */
+.alert {
+    border-radius: 8px;  /* Rounded corners */
+    border: none;  /* No border */
+    font-weight: 500;  /* Medium font weight */
+}
+
+/* Modal styles */
+.modal-content {
+    border-radius: 12px;  /* Rounded corners */
+    border: 1px solid #495057;  /* Border */
+}
+
+.modal-header {
+    border-bottom: 1px solid #495057;  /* Header border */
+}
+
+.modal-footer {
+    border-top: 1px solid #495057;  /* Footer border */
+}
+
+/* List group styles */
+.list-group-item {
+    background-color: transparent;  /* Transparent background */
+    border: 1px solid #495057;  /* Border */
+    color: #ffffff;  /* Text color */
+}
+
+.list-group-item:hover {
+    background-color: #343a40;  /* Hover background */
+    border-color: #6c757d;  /* Hover border */
+}
+
+.list-group-item.active {
+    background-color: #0d6efd;  /* Active background */
+    border-color: #0d6efd;  /* Active border */
+}
+
+/* Dropdown styles */
+.dropdown-menu {
+    background-color: #343a40;  /* Background */
+    border: 1px solid #495057;  /* Border */
+    border-radius: 8px;  /* Rounded corners */
+}
+
+.dropdown-item {
+    color: #ffffff;  /* Text color */
+}
+
+.dropdown-item:hover {
+    background-color: #495057;  /* Hover background */
+    color: #ffffff;  /* Hover text */
+}
+
+/* Input group styles */
+.input-group-text {
+    background-color: #495057;  /* Background */
+    border: 1px solid #495057;  /* Border */
+    color: #ffffff;  /* Text color */
+}
+
+/* Progress bar styles */
+.progress {
+    background-color: #495057;  /* Background */
+    border-radius: 8px;  /* Rounded corners */
+}
+
+.progress-bar {
+    border-radius: 8px;  /* Rounded corners */
+}
+
+/* Tooltip styles */
+.tooltip {
+    font-size: 0.875rem;  /* Font size */
+}
+
+.tooltip-inner {
+    background-color: #343a40;  /* Background */
+    border-radius: 6px;  /* Rounded corners */
+}
+
+/* Popover styles */
+.popover {
+    background-color: #343a40;  /* Background */
+    border: 1px solid #495057;  /* Border */
+    border-radius: 8px;  /* Rounded corners */
+}
+
+.popover-header {
+    background-color: #495057;  /* Header background */
+    border-bottom: 1px solid #495057;  /* Header border */
+    color: #ffffff;  /* Header text */
+}
+
+.popover-body {
+    color: #ffffff;  /* Body text */
+}
+
+/* Custom utility classes */
+.text-gradient {
+    background: linear-gradient(45deg, #0d6efd, #6610f2);  /* Gradient background */
+    -webkit-background-clip: text;  /* Webkit text clip */
+    -webkit-text-fill-color: transparent;  /* Transparent text */
+    background-clip: text;  /* Text clip */
+}
+
+.bg-glass {
+    background: rgba(255, 255, 255, 0.1);  /* Glass background */
+    backdrop-filter: blur(10px);  /* Blur effect */
+    border: 1px solid rgba(255, 255, 255, 0.2);  /* Glass border */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;  /* Bottom margin on mobile */
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;  /* Smaller font on mobile */
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;  /* Smaller padding on mobile */
+        font-size: 0.75rem;  /* Smaller font on mobile */
+    }
+}
+
+/* Dark theme overrides */
+[data-bs-theme="dark"] {
+    --bs-body-bg: #0f1419;  /* Dark body background */
+    --bs-body-color: #ffffff;  /* White text */
+}
+
+/* Custom animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;  /* Fade in animation */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }  /* Start state */
+    to { opacity: 1; transform: translateY(0); }  /* End state */
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;  /* Slide in animation */
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }  /* Start state */
+    to { transform: translateX(0); }  /* End state */
+}
+
+/* Focus styles for accessibility */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid #0d6efd;  /* Focus outline */
+    outline-offset: 2px;  /* Focus offset */
+}
+
+/* Print styles */
+@media print {
+    .navbar,
+    .btn,
+    .modal {
+        display: none !important;  /* Hide elements when printing */
+    }
+    
+    .card {
+        border: 1px solid #000 !important;  /* Print border */
+        box-shadow: none !important;  /* No shadow when printing */
+    }
+} 

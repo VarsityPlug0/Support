@@ -1,0 +1,179 @@
+{% extends 'base.html' %}  <!-- Extend the base template -->
+
+{% block title %}Confirm Resolution - {{ ticket.title }}{% endblock %}  <!-- Set page title -->
+
+{% block content %}
+<div class="row justify-content-center">  <!-- Main content row -->
+    <div class="col-lg-8">  <!-- Content column -->
+        <div class="card bg-dark border-secondary">  <!-- Dark card with border -->
+            <div class="card-header">  <!-- Card header -->
+                <h4 class="card-title mb-0">Issue Resolution Confirmation</h4>  <!-- Page title -->
+            </div>
+            <div class="card-body">  <!-- Card content -->
+                <!-- Ticket Information -->
+                <div class="mb-4">  <!-- Ticket info section -->
+                    <h5>Ticket Details</h5>  <!-- Section title -->
+                    <div class="row">  <!-- Info row -->
+                        <div class="col-md-6">  <!-- Left column -->
+                            <p><strong>Title:</strong> {{ ticket.title }}</p>  <!-- Ticket title -->
+                            <p><strong>Category:</strong> 
+                                <span class="badge bg-info">{{ ticket.intent_category|title }}</span>  <!-- Category badge -->
+                            </p>  <!-- Ticket category -->
+                            <p><strong>Priority:</strong> 
+                                <span class="badge bg-{{ ticket.priority|yesno:'danger,warning,success,secondary' }}">{{ ticket.priority|title }}</span>  <!-- Priority badge -->
+                            </p>  <!-- Ticket priority -->
+                        </div>
+                        <div class="col-md-6">  <!-- Right column -->
+                            <p><strong>Created:</strong> {{ ticket.created_at|date:"M d, Y H:i" }}</p>  <!-- Creation date -->
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-success">{{ ticket.status|title }}</span>  <!-- Status badge -->
+                            </p>  <!-- Ticket status -->
+                            {% if ticket.assigned_to %}  <!-- If assigned to admin -->
+                                <p><strong>Assigned to:</strong> {{ ticket.assigned_to.email }}</p>  <!-- Assigned admin -->
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resolution Question -->
+                <div class="text-center mb-4">  <!-- Resolution question section -->
+                    <div class="display-4 mb-3">✅</div>  <!-- Checkmark icon -->
+                    <h4>Was your issue resolved?</h4>  <!-- Question title -->
+                    <p class="text-muted">Please confirm if the solution provided has resolved your problem.</p>  <!-- Question description -->
+                </div>
+
+                <!-- Confirmation Form -->
+                <form method="post" class="needs-validation" novalidate>  <!-- Confirmation form -->
+                    {% csrf_token %}  <!-- CSRF token -->
+                    
+                    <!-- Satisfaction Rating -->
+                    <div class="mb-4">  <!-- Rating section -->
+                        <label class="form-label">How satisfied are you with the resolution?</label>  <!-- Rating label -->
+                        <div class="rating-stars mb-2">  <!-- Rating stars container -->
+                            <div class="btn-group" role="group">  <!-- Star buttons group -->
+                                <input type="radio" class="btn-check" name="satisfaction_rating" id="rating1" value="1">  <!-- 1 star -->
+                                <label class="btn btn-outline-warning" for="rating1">⭐</label>  <!-- 1 star label -->
+                                
+                                <input type="radio" class="btn-check" name="satisfaction_rating" id="rating2" value="2">  <!-- 2 stars -->
+                                <label class="btn btn-outline-warning" for="rating2">⭐⭐</label>  <!-- 2 stars label -->
+                                
+                                <input type="radio" class="btn-check" name="satisfaction_rating" id="rating3" value="3">  <!-- 3 stars -->
+                                <label class="btn btn-outline-warning" for="rating3">⭐⭐⭐</label>  <!-- 3 stars label -->
+                                
+                                <input type="radio" class="btn-check" name="satisfaction_rating" id="rating4" value="4">  <!-- 4 stars -->
+                                <label class="btn btn-outline-warning" for="rating4">⭐⭐⭐⭐</label>  <!-- 4 stars label -->
+                                
+                                <input type="radio" class="btn-check" name="satisfaction_rating" id="rating5" value="5" checked>  <!-- 5 stars (default) -->
+                                <label class="btn btn-outline-warning" for="rating5">⭐⭐⭐⭐⭐</label>  <!-- 5 stars label -->
+                            </div>
+                        </div>
+                        <small class="text-muted">1 = Very Dissatisfied, 5 = Very Satisfied</small>  <!-- Rating explanation -->
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-3">  <!-- Action buttons container -->
+                        <!-- Confirm Resolution -->
+                        <button type="submit" name="action" value="confirm" class="btn btn-success btn-lg">  <!-- Confirm button -->
+                            <i class="bi bi-check-circle me-2"></i>  <!-- Check icon -->
+                            Yes, my issue is resolved
+                        </button>
+                        
+                        <!-- Reject Resolution -->
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="collapse" data-bs-target="#rejectForm">  <!-- Reject button -->
+                            <i class="bi bi-x-circle me-2"></i>  <!-- X icon -->
+                            No, my issue is not resolved
+                        </button>
+                    </div>
+
+                    <!-- Reject Form (Collapsible) -->
+                    <div class="collapse mt-3" id="rejectForm">  <!-- Reject form container -->
+                        <div class="card bg-dark border-danger">  <!-- Reject form card -->
+                            <div class="card-body">  <!-- Card content -->
+                                <h6 class="text-danger">Please provide additional details</h6>  <!-- Form title -->
+                                <p class="text-muted small">Help us understand what still needs to be addressed.</p>  <!-- Form description -->
+                                
+                                <div class="mb-3">  <!-- Feedback textarea -->
+                                    <label for="feedback_comment" class="form-label">Additional Feedback</label>  <!-- Feedback label -->
+                                    <textarea class="form-control" id="feedback_comment" name="feedback_comment" rows="3" 
+                                              placeholder="Please describe what still needs to be resolved..."></textarea>  <!-- Feedback input -->
+                                </div>
+                                
+                                <button type="submit" name="action" value="reject" class="btn btn-danger">  <!-- Submit reject button -->
+                                    <i class="bi bi-arrow-clockwise me-2"></i>  <!-- Refresh icon -->
+                                    Reopen Ticket
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Back to Tickets -->
+                <div class="text-center mt-4">  <!-- Back link section -->
+                    <a href="{% url 'tickets' %}" class="btn btn-outline-secondary">  <!-- Back button -->
+                        <i class="bi bi-arrow-left me-2"></i>  <!-- Back icon -->
+                        Back to My Tickets
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}  <!-- Additional JavaScript block -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {  // Wait for DOM to load
+    // Handle star rating hover effects
+    const starLabels = document.querySelectorAll('.rating-stars label');  // Get star labels
+    const starInputs = document.querySelectorAll('.rating-stars input');  // Get star inputs
+    
+    starLabels.forEach(function(label, index) {  // Loop through star labels
+        label.addEventListener('mouseenter', function() {  // Mouse enter event
+            // Highlight stars up to current index
+            starLabels.forEach((l, i) => {  // Loop through all labels
+                if (i <= index) {  // If current or previous star
+                    l.classList.remove('btn-outline-warning');  // Remove outline class
+                    l.classList.add('btn-warning');  // Add filled class
+                } else {  // If later star
+                    l.classList.remove('btn-warning');  // Remove filled class
+                    l.classList.add('btn-outline-warning');  // Add outline class
+                }
+            });
+        });
+        
+        label.addEventListener('mouseleave', function() {  // Mouse leave event
+            // Reset to selected rating
+            const checkedInput = document.querySelector('.rating-stars input:checked');  // Get checked input
+            if (checkedInput) {  // If input is checked
+                const checkedIndex = Array.from(starInputs).indexOf(checkedInput);  // Get checked index
+                starLabels.forEach((l, i) => {  // Loop through all labels
+                    if (i <= checkedIndex) {  // If current or previous star
+                        l.classList.remove('btn-outline-warning');  // Remove outline class
+                        l.classList.add('btn-warning');  // Add filled class
+                    } else {  // If later star
+                        l.classList.remove('btn-warning');  // Remove filled class
+                        l.classList.add('btn-outline-warning');  // Add outline class
+                    }
+                });
+            }
+        });
+    });
+    
+    // Handle star input changes
+    starInputs.forEach(function(input) {  // Loop through star inputs
+        input.addEventListener('change', function() {  // Change event
+            const index = Array.from(starInputs).indexOf(this);  // Get input index
+            starLabels.forEach((label, i) => {  // Loop through all labels
+                if (i <= index) {  // If current or previous star
+                    label.classList.remove('btn-outline-warning');  // Remove outline class
+                    label.classList.add('btn-warning');  // Add filled class
+                } else {  // If later star
+                    label.classList.remove('btn-warning');  // Remove filled class
+                    label.classList.add('btn-outline-warning');  // Add outline class
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 
