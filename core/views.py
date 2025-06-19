@@ -17,6 +17,23 @@ from django.contrib.auth.decorators import user_passes_test  # Import for user_p
 import math
 from .safechain_knowledge import SAFECHAIN_KNOWLEDGE, SAFECHAIN_FAQ  # Import knowledge base
 import traceback  # Import traceback for detailed error info
+from functools import wraps  # Import wraps for decorators
+from django.conf import settings  # Import settings for debug mode
+
+def ajax_login_required(view_func):
+    """Custom decorator to handle AJAX requests and ensure JSON responses for authentication errors"""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            # This is an AJAX request
+            if not request.user.is_authenticated:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Authentication required',
+                    'redirect': '/login/'
+                }, status=401)
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 # Home view (following SafeCrypto pattern)
 def home_view(request):
@@ -124,6 +141,7 @@ def dashboard_view(request):
     return render(request, 'core/dashboard.html', context)  # Render dashboard template
 
 # Chat view
+@ajax_login_required  # Custom decorator for AJAX requests
 @login_required  # Require user to be logged in
 def chat_view(request):
     """Handle chat interface with AI assistant and intelligent workflow"""
@@ -142,7 +160,14 @@ def chat_view(request):
             
             # Get or create ticket
             if ticket_id:  # If continuing existing conversation
-                ticket = get_object_or_404(SupportTicket, id=ticket_id, user=request.user)  # Get existing ticket
+                try:
+                    ticket = get_object_or_404(SupportTicket, id=ticket_id, user=request.user)  # Get existing ticket
+                except:
+                    return JsonResponse({
+                        'success': False,
+                        'response': "Ticket not found or access denied. Please start a new conversation.",
+                        'suggestions': ['Start new conversation', 'Contact support']
+                    })
             else:  # If starting new conversation
                 # --- Onboarding/General Info Detection (Visual/Step-based) ---
                 onboarding_triggers = [
@@ -411,12 +436,19 @@ def chat_view(request):
         except Exception as e:  # Handle any errors
             print(f"Error in chat view: {str(e)}")  # Print error for debugging
             print(f"Full traceback: {traceback.format_exc()}")  # Print full traceback
-            return JsonResponse({
-                'success': False,  # Success flag
-                'response': "I apologize, but I'm having trouble processing your request right now. Please try again later.",
-                'ticket_id': ticket.id if 'ticket' in locals() else None,  # Ticket ID if available
-                'suggestions': ['Try again', 'Contact support directly']  # Default suggestions
-            })
+            
+            # Check if this is an AJAX request
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,  # Success flag
+                    'response': "I apologize, but I'm having trouble processing your request right now. Please try again later.",
+                    'ticket_id': ticket.id if 'ticket' in locals() else None,  # Ticket ID if available
+                    'suggestions': ['Try again', 'Contact support directly'],  # Default suggestions
+                    'error': str(e) if settings.DEBUG else 'Internal server error'  # Error details in debug mode
+                })
+            else:
+                # For non-AJAX requests, raise the exception normally
+                raise
     
     # GET request - show chat interface
     return render(request, 'core/chat_simple.html', {})  # Render simplified chat template
@@ -1974,7 +2006,7 @@ def admin_create_action_view(request):
     }
     return render(request, 'core/admin/create_action.html', context)  # Render create action template 
 
-# Admin action view for chat interface
+@ajax_login_required  # Custom decorator for AJAX requests
 @login_required
 @user_passes_test(lambda u: u.is_admin)
 def admin_action_view(request):
@@ -1982,6 +2014,12 @@ def admin_action_view(request):
     if request.method == 'POST':  # If POST request
         action = request.POST.get('action')  # Get action type
         ticket_id = request.POST.get('ticket_id')  # Get ticket ID
+        
+        if not action or not ticket_id:  # If missing required data
+            return JsonResponse({
+                'success': False, 
+                'error': 'Missing required data (action or ticket_id)'
+            })
         
         try:
             ticket = get_object_or_404(SupportTicket, id=ticket_id)  # Get ticket
@@ -2062,9 +2100,17 @@ def admin_action_view(request):
             
             return JsonResponse(response_data)  # Return success response
             
+        except SupportTicket.DoesNotExist:  # If ticket not found
+            return JsonResponse({
+                'success': False, 
+                'error': 'Ticket not found'
+            })
         except Exception as e:  # Handle errors
             print(f"Admin Action Error: {str(e)}")  # Print error for debugging
-            return JsonResponse({'success': False, 'error': 'An error occurred'})  # Return error
+            return JsonResponse({
+                'success': False, 
+                'error': 'An error occurred while processing the admin action'
+            })
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})  # Return error for non-POST requests
 

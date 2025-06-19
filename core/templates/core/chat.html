@@ -772,10 +772,27 @@ document.addEventListener('DOMContentLoaded', function() {  // Wait for DOM to l
         
         fetch('{% url "chat" %}', {  // Send fetch request
             method: 'POST',  // POST method
+            headers: {  // Add headers
+                'X-Requested-With': 'XMLHttpRequest'  // Identify as AJAX request
+            },
             body: formData  // Form data
         })
-        .then(response => response.json())  // Parse JSON response
-        .then(data => {  // Handle response
+        .then(response => {  // Handle response
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                // Server returned HTML instead of JSON (likely an error page)
+                throw new Error('Server returned HTML instead of JSON. This usually means there was an authentication error or server issue.');
+            }
+            
+            // Check if response is ok (status 200-299)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return response.json();  // Parse JSON response
+        })
+        .then(data => {  // Handle response data
             hideTypingIndicator();  // Hide typing indicator
             
             if (data.success) {  // If successful
@@ -786,7 +803,7 @@ document.addEventListener('DOMContentLoaded', function() {  // Wait for DOM to l
                 }
                 
                 // Add AI response
-                addMessage(data.ai_response, 'ai');  // Add AI response
+                addMessage(data.ai_response || data.response, 'ai');  // Add AI response
                 
                 // Show suggestions if available
                 if (data.suggestions) {  // If suggestions available
@@ -804,7 +821,28 @@ document.addEventListener('DOMContentLoaded', function() {  // Wait for DOM to l
         .catch(error => {  // Handle errors
             console.error('Error:', error);  // Log error
             hideTypingIndicator();  // Hide typing indicator
-            addMessage('Sorry, there was an error processing your request. Please try again.', 'ai');  // Add error message
+            
+            // Provide more specific error messages
+            let errorMessage = 'Sorry, there was an error processing your request. Please try again.';
+            
+            if (error.message.includes('HTML instead of JSON')) {
+                errorMessage = 'Your session may have expired. Please refresh the page and try again.';
+                // Add a refresh button
+                setTimeout(() => {
+                    const refreshBtn = document.createElement('button');
+                    refreshBtn.className = 'suggestion-btn';
+                    refreshBtn.textContent = '🔄 Refresh Page';
+                    refreshBtn.onclick = () => window.location.reload();
+                    aiSuggestions.appendChild(refreshBtn);
+                    aiSuggestions.style.display = 'flex';
+                }, 1000);
+            } else if (error.message.includes('HTTP error')) {
+                errorMessage = 'Server error occurred. Please try again in a moment.';
+            } else if (error.name === 'TypeError' && error.message.includes('JSON')) {
+                errorMessage = 'Invalid response from server. Please refresh the page and try again.';
+            }
+            
+            addMessage(errorMessage, 'ai');  // Add error message
         })
         .finally(() => {  // Finally block
             // Reset processing state
@@ -871,24 +909,87 @@ document.addEventListener('DOMContentLoaded', function() {  // Wait for DOM to l
         
         fetch('{% url "admin_action" %}', {  // Send fetch request
             method: 'POST',  // POST method
+            headers: {  // Add headers
+                'X-Requested-With': 'XMLHttpRequest'  // Identify as AJAX request
+            },
             body: formData  // Form data
         })
-        .then(response => response.json())  // Parse JSON response
+        .then(response => {  // Handle response
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                // Server returned HTML instead of JSON (likely an error page)
+                throw new Error('Server returned HTML instead of JSON. This usually means there was an authentication error or server issue.');
+            }
+            
+            // Check if response is ok (status 200-299)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return response.json();  // Parse JSON response
+        })
         .then(data => {  // Handle response
             if (data.success) {  // If successful
                 addMessage(data.message, 'admin');  // Add admin message
                 if (data.ticket_info) {  // If ticket info available
                     updateAdminTools(data.ticket_info);  // Update admin tools
                 }
+            } else {  // If error
+                addMessage('Admin action failed. Please try again.', 'admin');  // Add error message
             }
         })
         .catch(error => {  // Handle errors
             console.error('Error:', error);  // Log error
+            
+            // Provide more specific error messages
+            let errorMessage = 'Admin action failed. Please try again.';
+            
+            if (error.message.includes('HTML instead of JSON')) {
+                errorMessage = 'Your admin session may have expired. Please refresh the page and try again.';
+                // Add a refresh button
+                setTimeout(() => {
+                    const refreshBtn = document.createElement('button');
+                    refreshBtn.className = 'suggestion-btn';
+                    refreshBtn.textContent = '🔄 Refresh Page';
+                    refreshBtn.onclick = () => window.location.reload();
+                    aiSuggestions.appendChild(refreshBtn);
+                    aiSuggestions.style.display = 'flex';
+                }, 1000);
+            } else if (error.message.includes('HTTP error')) {
+                errorMessage = 'Server error occurred. Please try again in a moment.';
+            } else if (error.name === 'TypeError' && error.message.includes('JSON')) {
+                errorMessage = 'Invalid response from server. Please refresh the page and try again.';
+            }
+            
+            addMessage(errorMessage, 'admin');  // Add error message
         });
     }
     
     // Initialize
     updateSendButton();  // Update send button initially
+    
+    // Check session status periodically
+    function checkSessionStatus() {  // Check session function
+        fetch('{% url "health_check" %}', {  // Check health endpoint
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.status === 401) {  // If unauthorized
+                // Session expired - show message to user
+                addMessage('Your session has expired. Please refresh the page to continue.', 'ai');
+            }
+        })
+        .catch(error => {
+            console.log('Session check failed:', error);  // Log error
+        });
+    }
+    
+    // Check session every 5 minutes
+    setInterval(checkSessionStatus, 5 * 60 * 1000);  // Check every 5 minutes
 });
 </script>
 {% endblock %} 
