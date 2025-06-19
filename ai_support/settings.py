@@ -25,7 +25,7 @@ except ImportError:
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-your-secret-key-here')
     DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,support-avk8.onrender.com').split(',')
     MAX_UPLOAD_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', '10485760'))
     ALLOWED_UPLOAD_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf']
 
