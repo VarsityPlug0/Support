@@ -18,9 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import HttpResponse
+
+def simple_health_check(request):
+    """Simple health check for Render"""
+    return HttpResponse("OK", content_type="text/plain")
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Django admin interface
+    path('health/', simple_health_check, name='health_check'),  # Health check at root level
     path('', include('core.urls')),   # Include core app URLs
 ]
 
