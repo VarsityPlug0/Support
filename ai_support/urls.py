@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from core.views import test_openai_api
 
 def simple_health_check(request):
     """Simple health check for Render - bypasses all middleware"""
@@ -31,8 +32,14 @@ def simple_root_page(request):
     from django.shortcuts import redirect
     return redirect('/chat/')
 
+def api_test_view(request):
+    """Test OpenAI API endpoint"""
+    test_result = test_openai_api()
+    return JsonResponse(test_result)
+
 urlpatterns = [
     path('health/', simple_health_check, name='health_check'),  # Health check at root level
+    path('api-test/', api_test_view, name='api_test'),  # API test endpoint
     path('admin/', admin.site.urls),  # Django admin interface
     path('', simple_root_page, name='root'),  # Simple root page
     path('', include('core.urls')),   # Include core app URLs

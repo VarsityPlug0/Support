@@ -940,12 +940,13 @@ Use the SafeChain AI knowledge to provide accurate, helpful responses."""
         
         # Call OpenAI API using new client syntax
         response = client.chat.completions.create(
-            model="gpt-4",  # Use GPT-4 for better responses
+            model="gpt-3.5-turbo",  # Use GPT-3.5-turbo for better reliability
             messages=[
                 {"role": "system", "content": system_prompt},  # System prompt with SafeChain knowledge
                 {"role": "user", "content": f"{context}\n\nChat history:\n{chat_history}\n\nUser: {user_message}"}  # User message with context
             ],
-            max_tokens=800  # Increased token limit for more detailed responses
+            max_tokens=800,  # Increased token limit for more detailed responses
+            temperature=0.7  # Add temperature for more natural responses
         )
         
         ai_response = response.choices[0].message.content  # Get AI response
@@ -2781,3 +2782,44 @@ def health_check(request):
     """Health check endpoint for Render monitoring"""
     from django.http import HttpResponse
     return HttpResponse("OK", content_type="text/plain")
+
+def test_openai_api():
+    """Test OpenAI API connection and return status"""
+    try:
+        from ai_support.settings import OPENAI_API_KEY
+        from openai import OpenAI
+        
+        if not OPENAI_API_KEY:
+            return {
+                'status': 'error',
+                'message': 'OpenAI API key not configured',
+                'details': 'Please set OPENAI_API_KEY environment variable'
+            }
+        
+        # Create OpenAI client
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        
+        # Test with a simple request
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "user", "content": "Say 'Hello from SafeChain AI'"}
+            ],
+            max_tokens=50
+        )
+        
+        ai_response = response.choices[0].message.content
+        
+        return {
+            'status': 'success',
+            'message': 'OpenAI API is working correctly',
+            'response': ai_response,
+            'model': 'gpt-3.5-turbo'
+        }
+        
+    except Exception as e:
+        return {
+            'status': 'error',
+            'message': f'OpenAI API test failed: {str(e)}',
+            'details': 'Check API key and network connection'
+        }
