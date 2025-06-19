@@ -21,12 +21,14 @@ from django.conf.urls.static import static
 from django.http import HttpResponse
 
 def simple_health_check(request):
-    """Simple health check for Render"""
-    return HttpResponse("OK", content_type="text/plain")
+    """Simple health check for Render - bypasses all middleware"""
+    response = HttpResponse("OK")
+    response["Content-Type"] = "text/plain"
+    return response
 
 urlpatterns = [
-    path('admin/', admin.site.urls),  # Django admin interface
     path('health/', simple_health_check, name='health_check'),  # Health check at root level
+    path('admin/', admin.site.urls),  # Django admin interface
     path('', include('core.urls')),   # Include core app URLs
 ]
 
