@@ -830,32 +830,8 @@ def get_enhanced_ai_response(message, ticket, uploaded_files=None):
         from openai import OpenAI  # Import OpenAI client
         from .safechain_knowledge import SAFECHAIN_KNOWLEDGE, SAFECHAIN_FAQ, SAFECHAIN_SUPPORT_CATEGORIES  # Import knowledge base
         
-        # Create a completely isolated environment for OpenAI client
-        import os
-        import copy
-        
-        # Save original environment
-        original_env = copy.deepcopy(os.environ)
-        
-        # Clear all proxy-related environment variables
-        proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'NO_PROXY', 'no_proxy']
-        for var in proxy_vars:
-            if var in os.environ:
-                del os.environ[var]
-        
-        # Also clear any other potential interfering variables
-        interfering_vars = ['REQUESTS_CA_BUNDLE', 'CURL_CA_BUNDLE', 'SSL_CERT_FILE']
-        for var in interfering_vars:
-            if var in os.environ:
-                del os.environ[var]
-        
-        try:
-            # Create OpenAI client in clean environment
-            client = OpenAI(api_key=OPENAI_API_KEY)
-        finally:
-            # Restore original environment
-            os.environ.clear()
-            os.environ.update(original_env)
+        # Create OpenAI client with simple initialization
+        client = OpenAI(api_key=OPENAI_API_KEY)
         
         # Build context from ticket history
         context = f"User has a {ticket.intent_category} ticket: {ticket.title}. "  # Add ticket info
